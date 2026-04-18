@@ -27,18 +27,7 @@ A aplicação está implantada em ambiente cloud, garantindo alta disponibilidad
 - MySQL  
 - HTML5, CSS3, JavaScript  
 - Railway (Deploy e Infraestrutura)
-
----
-
-## ⚙️ Configuração do Ambiente
-
-### 🔽 1. Clonar o repositório
-
-```bash
-git clone https://github.com/seu-repositorio/tibase.git
-cd tibase
-```
-
+  
 ---
 
 ### 🔐 2. Variáveis de Ambiente
