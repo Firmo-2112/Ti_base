@@ -1,4 +1,4 @@
-# 🚀 Tibase System
+# 🚀 Ti Base System
 
 Sistema web em produção para gerenciamento e processamento de dados, hospedado na plataforma Railway com integração a banco de dados MySQL.
 
@@ -6,7 +6,7 @@ Sistema web em produção para gerenciamento e processamento de dados, hospedado
 
 ## 📌 Visão Geral
 
-O **Tibase System** é uma aplicação web projetada para fornecer uma estrutura robusta, escalável e eficiente para operações de backend e frontend integradas.  
+O **Ti Base System** é uma aplicação web projetada para fornecer uma estrutura robusta, escalável e eficiente para operações de backend e frontend integradas.  
 
 A aplicação está implantada em ambiente cloud, garantindo alta disponibilidade e fácil escalabilidade.
 
