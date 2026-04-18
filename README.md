@@ -133,8 +133,3 @@ O deploy é realizado automaticamente via Railway:
 
 Marcos Firmino Cruz dos Santos
 
----
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT.
