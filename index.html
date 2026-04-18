@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setor de TI - Gerenciador para Técnico de TI</title>
+    <link rel="stylesheet" href="styles.css?v=3">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-container">
+            <div class="login-header">
+                <svg class="login-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/>
+                    <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+                <h1>Setor de TI</h1>
+                <p>Sistema de Gerenciamento</p>
+            </div>
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="loginUser">Usuário</label>
+                    <div class="input-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        <input type="text" id="loginUser" placeholder="Digite seu usuário" required autofocus>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Senha</label>
+                    <div class="input-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        <input type="password" id="loginPassword" placeholder="Digite sua senha" required>
+                        <button type="button" class="password-toggle" id="passwordToggle">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="login-error" id="loginError">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="15" y1="9" x2="9" y2="15"/>
+                        <line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                    <span id="loginErrorMessage">Usuário ou senha inválidos!</span>
+                </div>
+                <button type="submit" class="btn btn-primary login-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                        <polyline points="10 17 15 12 10 7"/>
+                        <line x1="15" y1="12" x2="3" y2="12"/>
+                    </svg>
+                    Entrar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="app-container" id="appContainer" style="display: none;">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                    <span class="logo-text">Setor de TI</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-tab="dashboard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    <span>Início</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="inventory">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                    <span>Estoque</span>
+                    <span class="badge" id="inventoryBadge">0</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="snippets">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="16 18 22 12 16 6"/>
+                        <polyline points="8 6 2 12 8 18"/>
+                    </svg>
+                    <span>Códigos</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="services">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                    <span>Serviços</span>
+                    <span class="badge" id="servicesBadge">0</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="theme-toggle-container">
+                    <span class="theme-icon moon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </span>
+                    <label class="theme-switch">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="theme-icon sun">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"/>
+                            <line x1="12" y1="1" x2="12" y2="3"/>
+                            <line x1="12" y1="21" x2="12" y2="23"/>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                            <line x1="1" y1="12" x2="3" y2="12"/>
+                            <line x1="21" y1="12" x2="23" y2="12"/>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                        </svg>
+                    </span>
+                </div>
+                <button class="logout-btn" id="logoutBtn" title="Sair">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    <span>Sair</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="mobile-header">
+                <h1 class="mobile-title">Setor de TI</h1>
+            </header>
+
+            <section class="tab-content active" id="dashboard-tab">
+                <div class="content-header">
+                    <h2>Início</h2>
+                    <p class="subtitle">Visão geral do seu gerenciamento de TI</p>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon inventory-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalItems">0</span>
+                            <span class="stat-label">Itens no Estoque</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon low-stock-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                <line x1="12" y1="9" x2="12" y2="13"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="lowStockItems">0</span>
+                            <span class="stat-label">Estoque Baixo</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon snippets-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="16 18 22 12 16 6"/>
+                                <polyline points="8 6 2 12 8 18"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalSnippets">0</span>
+                            <span class="stat-label">Códigos Salvos</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon services-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="pendingServices">0</span>
+                            <span class="stat-label">Serviços Pendentes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-sections">
+                    <div class="dashboard-card">
+                        <h3>Atividade de Estoque</h3>
+                        <!-- ID corrigido: inventoryActivity (usado pelo app.js) -->
+                        <div class="activity-list" id="inventoryActivity">
+                            <div class="empty-state">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                                <p>Nenhuma atividade recente</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Atividade de Serviços</h3>
+                        <!-- ID corrigido: servicesActivity (usado pelo app.js) -->
+                        <div class="activity-list" id="servicesActivity">
+                            <div class="empty-state">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                                <p>Nenhuma atividade recente</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card quick-actions-section">
+                    <h3>Ações Rápidas</h3>
+                    <div class="quick-actions-grid">
+                        <button class="quick-action-btn" data-action="add-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            <span>Novo Item</span>
+                        </button>
+                        <button class="quick-action-btn" data-action="add-snippet">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="16 18 22 12 16 6"/>
+                                <polyline points="8 6 2 12 8 18"/>
+                                <line x1="12" y1="2" x2="12" y2="22"/>
+                            </svg>
+                            <span>Novo Código</span>
+                        </button>
+                        <button class="quick-action-btn" data-action="add-service">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            <span>Novo Serviço</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-content" id="inventory-tab">
+                <div class="content-header">
+                    <h2>Gerenciador de Estoque</h2>
+                    <p class="subtitle">Controle de equipamentos, peças e suprimentos</p>
+                </div>
+                <div class="toolbar">
+                    <div class="search-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" placeholder="Buscar itens..." id="inventorySearch">
+                    </div>
+                    <div class="toolbar-actions">
+                        <select id="categoryFilter" class="filter-select">
+                            <option value="">Todas Categorias</option>
+                            <option value="hardware">Hardware</option>
+                            <option value="software">Software</option>
+                            <option value="perifericos">Periféricos</option>
+                            <option value="cabos">Cabos</option>
+                            <option value="rede">Rede</option>
+                            <option value="outros">Outros</option>
+                        </select>
+                        <button class="btn btn-primary" id="addItemBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            <span>Adicionar Item</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="inventory-container">
+                    <div class="inventory-table-wrapper">
+                        <table class="inventory-table" id="inventoryTable">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Categoria</th>
+                                    <th>Quantidade</th>
+                                    <th>Localização</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state-container" id="inventoryEmpty">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                        </svg>
+                        <h3>Nenhum item no estoque</h3>
+                        <p>Comece adicionando seu primeiro item</p>
+                        <button class="btn btn-primary" id="addFirstItemBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Adicionar Primeiro Item
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-content" id="snippets-tab">
+                <div class="content-header">
+                    <h2>Códigos CMD & PowerShell</h2>
+                    <p class="subtitle">Biblioteca de comandos e scripts úteis</p>
+                </div>
+                <div class="toolbar">
+                    <div class="search-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" placeholder="Buscar códigos..." id="snippetsSearch">
+                    </div>
+                    <div class="toolbar-actions">
+                        <select id="snippetCategoryFilter" class="filter-select">
+                            <option value="">Todas Categorias</option>
+                            <option value="sistema">Sistema</option>
+                            <option value="impressora">Impressora</option>
+                            <option value="rede">Rede</option>
+                        </select>
+                        <select id="snippetTypeFilter" class="filter-select">
+                            <option value="">Todos Tipos</option>
+                            <option value="cmd">CMD</option>
+                            <option value="powershell">PowerShell</option>
+                            <option value="batch">Batch</option>
+                        </select>
+                        <button class="btn btn-primary" id="addSnippetBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            <span>Novo Código</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="snippets-container">
+                    <div class="snippets-grid" id="snippetsGrid"></div>
+                    <div class="empty-state-container" id="snippetsEmpty">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="16 18 22 12 16 6"/>
+                            <polyline points="8 6 2 12 8 18"/>
+                        </svg>
+                        <h3>Nenhum código salvo</h3>
+                        <p>Adicione comandos e scripts úteis para seu trabalho</p>
+                        <button class="btn btn-primary" id="addFirstSnippetBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Adicionar Primeiro Código
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-content" id="services-tab">
+                <div class="content-header">
+                    <h2>Gerenciador de Serviços</h2>
+                    <p class="subtitle">Acompanhe atividades e serviços realizados</p>
+                </div>
+                <div class="toolbar">
+                    <div class="search-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" placeholder="Buscar serviços..." id="servicesSearch">
+                    </div>
+                    <div class="toolbar-actions">
+                        <select id="statusFilter" class="filter-select">
+                            <option value="">Todos Status</option>
+                            <option value="pending">Pendentes</option>
+                            <option value="completed">Concluídos</option>
+                        </select>
+                        <button class="btn btn-primary" id="addServiceBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            <span>Novo Serviço</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="services-container">
+                    <div class="services-list" id="servicesList"></div>
+                    <div class="empty-state-container" id="servicesEmpty">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                        <h3>Nenhum serviço cadastrado</h3>
+                        <p>Comece adicionando seu primeiro serviço/atividade</p>
+                        <button class="btn btn-primary" id="addFirstServiceBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Adicionar Primeiro Serviço
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAIS -->
+    <div class="modal-overlay" id="itemModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="itemModalTitle">Adicionar Item</h3>
+                <button class="modal-close" data-close="itemModal">&times;</button>
+            </div>
+            <form class="modal-body" id="itemForm">
+                <input type="hidden" id="itemId">
+                <div class="form-group">
+                    <label for="itemName">Nome</label>
+                    <input type="text" id="itemName" required placeholder="Ex: Mouse USB">
+                </div>
+                <div class="form-group">
+                    <label for="itemCategory">Categoria</label>
+                    <select id="itemCategory" required>
+                        <option value="">Selecione...</option>
+                        <option value="hardware">Hardware</option>
+                        <option value="software">Software</option>
+                        <option value="perifericos">Periféricos</option>
+                        <option value="cabos">Cabos</option>
+                        <option value="rede">Rede</option>
+                        <option value="outros">Outros</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="itemQuantity">Quantidade</label>
+                        <input type="number" id="itemQuantity" required min="0" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="itemMinStock">Estoque Mínimo</label>
+                        <input type="number" id="itemMinStock" min="0" value="5">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="itemLocation">Localização</label>
+                    <input type="text" id="itemLocation" placeholder="Ex: Armário A-12">
+                </div>
+                <div class="form-group">
+                    <label for="itemDescription">Descrição</label>
+                    <textarea id="itemDescription" rows="3" placeholder="Descrição detalhada do item..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close="itemModal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="snippetModal">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h3 id="snippetModalTitle">Adicionar Código</h3>
+                <button class="modal-close" data-close="snippetModal">&times;</button>
+            </div>
+            <form class="modal-body" id="snippetForm">
+                <input type="hidden" id="snippetId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="snippetTitle">Título</label>
+                        <input type="text" id="snippetTitle" required placeholder="Ex: Resetar Windows Update">
+                    </div>
+                    <div class="form-group">
+                        <label for="snippetCategory">Categoria</label>
+                        <select id="snippetCategory" required>
+                            <option value="">Selecione...</option>
+                            <option value="sistema">Sistema</option>
+                            <option value="impressora">Impressora</option>
+                            <option value="rede">Rede</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="snippetType">Tipo</label>
+                        <select id="snippetType" required>
+                            <option value="cmd">CMD</option>
+                            <option value="powershell">PowerShell</option>
+                            <option value="batch">Batch (.bat)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="snippetTags">Tags (separadas por vírgula)</label>
+                        <input type="text" id="snippetTags" placeholder="Ex: windows, update, reparo">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="snippetDescription">Descrição</label>
+                    <textarea id="snippetDescription" rows="2" placeholder="Descrição do que o código faz..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="snippetCode">Código</label>
+                    <div class="code-editor-wrapper">
+                        <textarea id="snippetCode" required rows="10" class="code-editor" placeholder="Cole seu código aqui..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close="snippetModal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="viewSnippetModal">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h3 id="viewSnippetTitle">Código</h3>
+                <button class="modal-close" data-close="viewSnippetModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="snippet-meta" id="viewSnippetMeta"></div>
+                <div class="code-display">
+                    <div class="code-header">
+                        <span class="code-type" id="viewSnippetType"></span>
+                        <button class="btn btn-sm btn-secondary" id="copyCodeBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                            Copiar
+                        </button>
+                    </div>
+                    <pre class="code-content" id="viewSnippetCode"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="serviceModal">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h3 id="serviceModalTitle">Adicionar Serviço</h3>
+                <button class="modal-close" data-close="serviceModal">&times;</button>
+            </div>
+            <form class="modal-body" id="serviceForm">
+                <input type="hidden" id="serviceId">
+                <div class="form-group">
+                    <label for="serviceTitle">Título</label>
+                    <input type="text" id="serviceTitle" required placeholder="Ex: Manutenção de Computador">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="serviceClient">Cliente/Setor</label>
+                        <input type="text" id="serviceClient" placeholder="Ex: Financeiro">
+                    </div>
+                    <div class="form-group">
+                        <label for="servicePriority">Prioridade</label>
+                        <select id="servicePriority">
+                            <option value="baixa">Baixa</option>
+                            <option value="media" selected>Média</option>
+                            <option value="alta">Alta</option>
+                            <option value="urgente">Urgente</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="serviceDate">Data</label>
+                    <input type="date" id="serviceDate">
+                </div>
+                <div class="form-group">
+                    <label for="serviceDescription">Descrição do Serviço</label>
+                    <textarea id="serviceDescription" required rows="4" placeholder="Descreva detalhadamente o serviço..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="serviceReport">Relatório</label>
+                    <textarea id="serviceReport" rows="4" placeholder="Relatório detalhado das atividades realizadas e pendências..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close="serviceModal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="viewServiceModal">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h3 id="viewServiceTitle">Serviço</h3>
+                <button class="modal-close" data-close="viewServiceModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="service-view-meta" id="viewServiceMeta"></div>
+                <div class="service-view-section">
+                    <h4>Descrição</h4>
+                    <p id="viewServiceDescription"></p>
+                </div>
+                <div class="service-view-section">
+                    <h4>Relatório</h4>
+                    <p id="viewServiceReport"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close="viewServiceModal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="editFromViewBtn">Editar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal modal-small">
+            <div class="modal-header">
+                <h3 id="confirmTitle">Confirmar</h3>
+                <button class="modal-close" data-close="confirmModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Tem certeza?</p>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close="confirmModal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmAction">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js?v=3"></script>
+</body>
+</html>
