@@ -12,8 +12,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Serve static frontend files
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static frontend files (raiz do projeto)
+app.use(express.static(path.join(__dirname)));
 
 // ==========================================
 // CONEXÃO COM O BANCO DE DADOS
@@ -354,7 +354,7 @@ async function logActivity(tipo, acao, detalhes, pool) {
 // FALLBACK PARA SPA
 // ==========================================
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // ==========================================
