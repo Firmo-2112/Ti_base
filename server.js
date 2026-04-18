@@ -12,8 +12,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Serve static frontend files (raiz do projeto)
-app.use(express.static(path.join(__dirname)));
+// Arquivos estáticos serão servidos APÓS as rotas de API (veja no final do arquivo)
 
 // ==========================================
 // CONEXÃO COM O BANCO DE DADOS
@@ -351,8 +350,11 @@ async function logActivity(tipo, acao, detalhes, pool) {
 }
 
 // ==========================================
-// FALLBACK PARA SPA
+// ARQUIVOS ESTÁTICOS + FALLBACK PARA SPA
+// Declarados APÓS todas as rotas /api/* para não interceptá-las
 // ==========================================
+app.use(express.static(path.join(__dirname)));
+
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
