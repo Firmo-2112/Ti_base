@@ -31,15 +31,12 @@ const dbConfig = {
 
 const pool = mysql.createPool(dbConfig);
 
-// Testar conexão ao iniciar
-pool.getConnection()
-    .then(conn => {
-        console.log('✅ Conectado ao banco de dados MySQL (Railway)');
-        conn.release();
-    })
-    .catch(err => {
-        console.error('❌ Erro ao conectar ao banco de dados:', err.message);
-    });
+// ==========================================
+// HEALTHCHECK — Railway precisa deste endpoint
+// ==========================================
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
+});
 
 // ==========================================
 // MIDDLEWARE DE AUTENTICAÇÃO (SESSÃO SIMPLES)
@@ -362,8 +359,20 @@ app.get('*', (req, res) => {
 
 // ==========================================
 // INICIAR SERVIDOR
+// Railway exige bind em 0.0.0.0 e usa PORT dinamicamente
 // ==========================================
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Setor de TI rodando na porta ${PORT}`);
+
+    // Testar conexão com o banco APÓS o servidor HTTP estar pronto
+    pool.getConnection()
+        .then(conn => {
+            console.log('✅ Conectado ao banco de dados MySQL (Railway)');
+            conn.release();
+        })
+        .catch(err => {
+            console.error('⚠️  Banco de dados indisponível no momento:', err.message);
+            console.error('   O servidor HTTP continua rodando. Verifique as variáveis de ambiente.');
+        });
 });
