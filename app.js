@@ -17,7 +17,7 @@ const AppState = {
 // CLIENTE DE API
 // ==========================================
 const API = {
-    BASE: '', // Mesmo domínio — Railway serve tudo junto
+    BASE: 'mysql-production-2a63.up.railway.app', // Mesmo domínio — Railway serve tudo junto
 
     headers() {
         return {
