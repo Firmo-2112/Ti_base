@@ -106,11 +106,7 @@ body {
     background-color: var(--bg-void);
     color: var(--text-primary);
     margin:0;
-    line-height: 1.6;
     overflow-x: hidden;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
 
 a { text-decoration: none; color: inherit; }
@@ -118,7 +114,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 input, select, textarea { font-family: inherit; font-size: inherit; }
 table { border-collapse: collapse; width: 100%; }
 
-#binaryCanvas {
+Canvas {
     position: fixed;
     top: 0;
     left: 0;
@@ -128,7 +124,7 @@ table { border-collapse: collapse; width: 100%; }
     opacity: .1;
 }
 
-[data-theme="light"] #binaryCanvas {
+[data-theme="light"] Canvas {
     opacity: 0.06;
 }
 
@@ -1840,5 +1836,5 @@ body::after {
         transition-duration: 0.1ms !important;
     }
 
-    #binaryCanvas { display: none; }
+    Canvas { display: none; }
 }}
