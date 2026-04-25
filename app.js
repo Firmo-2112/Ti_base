@@ -1051,7 +1051,7 @@ const Reports = {
                     <div style="margin-top:40px;font-size:12px;color:#333;">Data: ___/___/______</div>
                 </div>
                 <div style="flex:1;min-width:180px;text-align:center;">
-                    <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Assinatura de Recebido por</div>
+                    <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Assinatura do destinatário</div>
                 </div>
             </div>
         </div>`;
@@ -1094,8 +1094,9 @@ const Reports = {
             <table>
                 <thead><tr><th>Nome do Item</th><th style="text-align:center;">Quantidade</th></tr></thead>
                 <tbody>${tableRows}</tbody>
+                <br><br>
             </table>
-            <br><br>
+            
             ${this._buildPdfFooter()}
             </body></html>`;
 
