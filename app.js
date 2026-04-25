@@ -1,13 +1,4 @@
 // FUNDO BINÁRIO
-const toggle = document.getElementById('themeToggle');
-
-toggle?.addEventListener('change', () => {
-  document.body.setAttribute(
-    'data-theme',
-    toggle.checked ? 'dark' : 'light'
-  );
-});
-
 
 const canvas = document.getElementById('matrix');
 const ctx = canvas.getContext('2d');
