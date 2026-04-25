@@ -1880,8 +1880,8 @@ body::after {
 }
 
 .report-subtab.active {
-    background: var(--primary-hover);
-    color: #fff;
+    background: var(--primary);
+    color: var(--bg-void);
     box-shadow: 0 2px 8px rgba(0,212,255,0.3);
 }
 
