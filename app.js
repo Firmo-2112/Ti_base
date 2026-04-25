@@ -1027,7 +1027,7 @@ const Reports = {
         this.renderPedidoList();
     },
 
-    // ---- PDF GENERATION ----
+ //gerar pdf
 
     async _buildPdfHeader(brasao) {
         let headerHtml = '<div style="text-align:center;margin-bottom:24px;border-bottom:2px solid #1a2744;padding-bottom:16px;">';
@@ -1095,6 +1095,7 @@ const Reports = {
                 <thead><tr><th>Nome do Item</th><th style="text-align:center;">Quantidade</th></tr></thead>
                 <tbody>${tableRows}</tbody>
             </table>
+            <br><br>
             ${this._buildPdfFooter()}
             </body></html>`;
 
