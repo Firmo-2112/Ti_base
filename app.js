@@ -1042,7 +1042,7 @@ const Reports = {
 
     _buildPdfFooter() {
         return `
-        <div style="margin-top:48px;border-top:1px solid #ccc;padding-top:24px;">
+        <div style="margin-top:48px;padding-top:24px;">
             <div style="display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;">
                 <div style="flex:1;min-width:180px;text-align:center;">
                     <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Assinatura do Responsável</div>
@@ -1051,7 +1051,7 @@ const Reports = {
                     <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Assinatura de Recebido por</div>
                 </div>
                 <div style="flex:1;min-width:130px;text-align:center;">
-                    <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Data: ___/___/______</div>
+                    <div style="margin-top:40px;font-size:12px;color:#333;">Data: ___/___/______</div>
                 </div>
             </div>
         </div>`;
