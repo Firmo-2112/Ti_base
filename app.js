@@ -888,6 +888,315 @@ const Services = {
 };
 
 // ==========================================
+// RELATÓRIOS
+// ==========================================
+const Reports = {
+    pedidoItems: [],
+    pedidoEditId: null,
+
+    BRASAO_B64: null,
+
+    async loadBrasao() {
+        if (this.BRASAO_B64) return this.BRASAO_B64;
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                this.BRASAO_B64 = canvas.toDataURL('image/jpeg', 0.9);
+                resolve(this.BRASAO_B64);
+            };
+            img.onerror = () => resolve(null);
+            img.src = '/Brasao_japaratuba_se.jpg';
+        });
+    },
+
+    init() {
+        this._bindSubtabs();
+        this._bindEstoque();
+        this._bindServicos();
+        this._bindPedido();
+    },
+
+    _bindSubtabs() {
+        document.querySelectorAll('.report-subtab').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.report-subtab').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.report-panel').forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('report-panel-' + btn.dataset.report).classList.add('active');
+            };
+        });
+    },
+
+    _bindEstoque() {
+        const btn = document.getElementById('btnGerarEstoque');
+        if (btn) btn.onclick = () => this.gerarEstoque();
+    },
+
+    _bindServicos() {
+        const btn = document.getElementById('btnGerarServicos');
+        if (btn) btn.onclick = () => this.gerarServicos();
+    },
+
+    _bindPedido() {
+        const btnAdd = document.getElementById('btnAdicionarPedido');
+        const btnGerar = document.getElementById('btnGerarPedido');
+        if (btnAdd) btnAdd.onclick = () => this.adicionarItemPedido();
+        if (btnGerar) btnGerar.onclick = () => this.gerarPedido();
+    },
+
+    adicionarItemPedido() {
+        const nome = document.getElementById('pedidoNome').value.trim();
+        const qtd = parseInt(document.getElementById('pedidoQtd').value) || 1;
+        const nivel = document.getElementById('pedidoNivel').value;
+        if (!nome) { Toast.show('Informe o nome do produto!', 'error'); return; }
+        this.pedidoItems.push({ id: Date.now(), nome, qtd, nivel });
+        document.getElementById('pedidoNome').value = '';
+        document.getElementById('pedidoQtd').value = '1';
+        document.getElementById('pedidoNivel').value = 'Média';
+        this.renderPedidoList();
+    },
+
+    renderPedidoList() {
+        const list = document.getElementById('pedidoItemsList');
+        const badge = document.getElementById('pedidoBadge');
+        const btnGerar = document.getElementById('btnGerarPedido');
+        badge.textContent = this.pedidoItems.length;
+        btnGerar.disabled = this.pedidoItems.length === 0;
+
+        if (this.pedidoItems.length === 0) {
+            list.innerHTML = '<div class="report-preview-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><p>Nenhum item adicionado ainda</p></div>';
+            return;
+        }
+
+        list.innerHTML = this.pedidoItems.map(item => `
+            <div class="pedido-item-row" id="pedido-row-${item.id}">
+                <div class="pedido-item-row-wrap">
+                    <div style="display:flex;align-items:center;gap:0.75rem;flex:1">
+                        <span class="pedido-item-name">${Inventory.escapeHtml(item.nome)}</span>
+                        <span class="pedido-item-qty">Qtd: ${item.qtd}</span>
+                        <span class="pedido-item-nivel ${item.nivel}">${item.nivel}</span>
+                        <div class="pedido-item-actions" style="margin-left:auto">
+                            <button class="btn btn-sm btn-secondary" onclick="Reports.editarItem(${item.id})">Editar</button>
+                            <button class="btn btn-sm btn-danger" onclick="Reports.excluirItem(${item.id})">Excluir</button>
+                        </div>
+                    </div>
+                    <div class="pedido-edit-inline" id="pedido-edit-${item.id}">
+                        <input type="text" value="${Inventory.escapeHtml(item.nome)}" id="edit-nome-${item.id}" placeholder="Nome" style="flex:1;min-width:120px">
+                        <input type="number" value="${item.qtd}" id="edit-qtd-${item.id}" min="1" style="width:60px">
+                        <select id="edit-nivel-${item.id}">
+                            ${['Baixa','Média','Alta','Urgente'].map(n => `<option value="${n}"${n===item.nivel?' selected':''}>${n}</option>`).join('')}
+                        </select>
+                        <button class="btn btn-sm btn-primary" onclick="Reports.salvarEdicao(${item.id})">Salvar</button>
+                        <button class="btn btn-sm btn-secondary" onclick="Reports.cancelarEdicao(${item.id})">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    },
+
+    editarItem(id) {
+        document.querySelectorAll('.pedido-item-row').forEach(r => r.classList.remove('editing'));
+        const row = document.getElementById('pedido-row-' + id);
+        if (row) row.classList.add('editing');
+    },
+
+    cancelarEdicao(id) {
+        const row = document.getElementById('pedido-row-' + id);
+        if (row) row.classList.remove('editing');
+    },
+
+    salvarEdicao(id) {
+        const item = this.pedidoItems.find(i => i.id === id);
+        if (!item) return;
+        const nome = document.getElementById('edit-nome-' + id).value.trim();
+        const qtd = parseInt(document.getElementById('edit-qtd-' + id).value) || 1;
+        const nivel = document.getElementById('edit-nivel-' + id).value;
+        if (!nome) { Toast.show('Nome não pode ser vazio!', 'error'); return; }
+        item.nome = nome; item.qtd = qtd; item.nivel = nivel;
+        this.renderPedidoList();
+    },
+
+    excluirItem(id) {
+        this.pedidoItems = this.pedidoItems.filter(i => i.id !== id);
+        this.renderPedidoList();
+    },
+
+    // ---- PDF GENERATION ----
+
+    async _buildPdfHeader(brasao) {
+        let headerHtml = '<div style="text-align:center;margin-bottom:24px;border-bottom:2px solid #1a2744;padding-bottom:16px;">';
+        if (brasao) {
+            headerHtml += `<img src="${brasao}" style="height:90px;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto">`;
+        }
+        headerHtml += '<h1 style="margin:0;font-size:22px;font-weight:700;color:#1a2744;letter-spacing:1px;">SETOR DE TI</h1>';
+        headerHtml += '<p style="margin:4px 0 0 0;font-size:12px;color:#555;">Prefeitura Municipal de Japaratuba — Sergipe</p>';
+        headerHtml += '</div>';
+        return headerHtml;
+    },
+
+    _buildPdfFooter() {
+        return `
+        <div style="margin-top:48px;border-top:1px solid #ccc;padding-top:24px;">
+            <div style="display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+                <div style="flex:1;min-width:180px;text-align:center;">
+                    <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Assinatura do Responsável</div>
+                </div>
+                <div style="flex:1;min-width:180px;text-align:center;">
+                    <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Assinatura de Recebido por</div>
+                </div>
+                <div style="flex:1;min-width:130px;text-align:center;">
+                    <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Data: ___/___/______</div>
+                </div>
+            </div>
+        </div>`;
+    },
+
+    async gerarEstoque() {
+        try {
+            let items = [...AppState.inventory];
+            if (items.length === 0) {
+                try { items = await API.get('/api/estoque'); } catch(e) { items = []; }
+            }
+            const brasao = await this.loadBrasao();
+            const categorias = ['hardware', 'software', 'perifericos', 'cabos', 'rede', 'outros'];
+            const catLabels = { hardware: 'Hardware', software: 'Software', perifericos: 'Periféricos', cabos: 'Cabos', rede: 'Rede', outros: 'Outros' };
+            const grouped = {};
+            categorias.forEach(c => { grouped[c] = []; });
+            items.forEach(item => {
+                const cat = (item.categoria || 'outros').toLowerCase();
+                if (grouped[cat]) grouped[cat].push(item); else grouped['outros'].push(item);
+            });
+
+            let tableRows = '';
+            categorias.forEach(cat => {
+                if (grouped[cat].length === 0) return;
+                tableRows += `<tr><td colspan="2" style="background:#1a2744;color:#fff;font-weight:700;font-size:13px;padding:8px 12px;letter-spacing:0.5px;">${catLabels[cat]}</td></tr>`;
+                grouped[cat].forEach((item, i) => {
+                    const bg = i % 2 === 0 ? '#f9fafb' : '#fff';
+                    tableRows += `<tr style="background:${bg}"><td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;">${Inventory.escapeHtml(item.nome)}</td><td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;text-align:center;width:100px;">${item.quantidade}</td></tr>`;
+                });
+            });
+
+            const today = new Date().toLocaleDateString('pt-BR');
+            const headerHtml = await this._buildPdfHeader(brasao);
+            const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:40px;color:#222;}table{width:100%;border-collapse:collapse;}th{background:#1a2744;color:#fff;padding:10px 12px;font-size:13px;text-align:left;}th:last-child{text-align:center;width:100px;}</style></head><body>
+            ${headerHtml}
+            <div style="display:flex;justify-content:space-between;margin-bottom:16px;align-items:flex-end;">
+                <h2 style="margin:0;font-size:16px;color:#1a2744;">Relatório de Estoque</h2>
+                <span style="font-size:11px;color:#777;">Emitido em: ${today}</span>
+            </div>
+            <table>
+                <thead><tr><th>Nome do Item</th><th style="text-align:center;">Quantidade</th></tr></thead>
+                <tbody>${tableRows}</tbody>
+            </table>
+            ${this._buildPdfFooter()}
+            </body></html>`;
+
+            this._printHtml(html, 'Relatorio_Estoque');
+        } catch(e) {
+            Toast.show('Erro ao gerar relatório!', 'error');
+        }
+    },
+
+    async gerarServicos() {
+        try {
+            let services = [...AppState.services];
+            if (services.length === 0) {
+                try { services = await API.get('/api/servicos'); } catch(e) { services = []; }
+            }
+            const filterVal = document.getElementById('reportServicosFilter').value;
+            if (filterVal) services = services.filter(s => s.status === filterVal);
+            const brasao = await this.loadBrasao();
+            const today = new Date().toLocaleDateString('pt-BR');
+
+            let tableRows = services.map((s, i) => {
+                const bg = i % 2 === 0 ? '#f9fafb' : '#fff';
+                const date = s.data_servico ? new Date(s.data_servico).toLocaleDateString('pt-BR') : '-';
+                return `<tr style="background:${bg}">
+                    <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;font-weight:600;">${Inventory.escapeHtml(s.titulo)}</td>
+                    <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;">${Inventory.escapeHtml(s.cliente_setor||'-')}</td>
+                    <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;white-space:nowrap;">${date}</td>
+                    <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;">${Inventory.escapeHtml(s.descricao||'')}</td>
+                </tr>`;
+            }).join('');
+
+            if (!tableRows) tableRows = '<tr><td colspan="4" style="text-align:center;padding:20px;color:#999;font-size:13px;">Nenhum serviço encontrado</td></tr>';
+
+            const headerHtml = await this._buildPdfHeader(brasao);
+            const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:40px;color:#222;}table{width:100%;border-collapse:collapse;}th{background:#1a2744;color:#fff;padding:10px 10px;font-size:12px;text-align:left;}</style></head><body>
+            ${headerHtml}
+            <div style="display:flex;justify-content:space-between;margin-bottom:16px;align-items:flex-end;">
+                <h2 style="margin:0;font-size:16px;color:#1a2744;">Relatório de Serviços</h2>
+                <span style="font-size:11px;color:#777;">Emitido em: ${today}</span>
+            </div>
+            <table>
+                <thead><tr><th>Título</th><th>Setor/Cliente</th><th>Data</th><th>Descrição</th></tr></thead>
+                <tbody>${tableRows}</tbody>
+            </table>
+            ${this._buildPdfFooter()}
+            </body></html>`;
+
+            this._printHtml(html, 'Relatorio_Servicos');
+        } catch(e) {
+            Toast.show('Erro ao gerar relatório!', 'error');
+        }
+    },
+
+    async gerarPedido() {
+        if (this.pedidoItems.length === 0) { Toast.show('Adicione itens ao pedido!', 'error'); return; }
+        const brasao = await this.loadBrasao();
+        const today = new Date().toLocaleDateString('pt-BR');
+
+        const nivelColor = { Baixa: '#059669', Média: '#d97706', Alta: '#ea580c', Urgente: '#dc2626' };
+
+        let tableRows = this.pedidoItems.map((item, i) => {
+            const bg = i % 2 === 0 ? '#f9fafb' : '#fff';
+            const cor = nivelColor[item.nivel] || '#333';
+            return `<tr style="background:${bg}">
+                <td style="padding:9px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;">${i+1}</td>
+                <td style="padding:9px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:600;">${Inventory.escapeHtml(item.nome)}</td>
+                <td style="padding:9px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;text-align:center;">${item.qtd}</td>
+                <td style="padding:9px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;text-align:center;"><span style="color:${cor};font-weight:700;">${item.nivel}</span></td>
+            </tr>`;
+        }).join('');
+
+        const headerHtml = await this._buildPdfHeader(brasao);
+        const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:40px;color:#222;}table{width:100%;border-collapse:collapse;}th{background:#1a2744;color:#fff;padding:10px 12px;font-size:13px;text-align:left;}</style></head><body>
+        ${headerHtml}
+        <div style="display:flex;justify-content:space-between;margin-bottom:16px;align-items:flex-end;">
+            <h2 style="margin:0;font-size:16px;color:#1a2744;">Pedido de Reposição de Estoque</h2>
+            <span style="font-size:11px;color:#777;">Emitido em: ${today}</span>
+        </div>
+        <table>
+            <thead><tr><th style="width:40px;">#</th><th>Nome do Produto</th><th style="width:100px;text-align:center;">Quantidade</th><th style="width:130px;text-align:center;">Nível de Necessidade</th></tr></thead>
+            <tbody>${tableRows}</tbody>
+        </table>
+        ${this._buildPdfFooter()}
+        </body></html>`;
+
+        this._printHtml(html, 'Pedido_Reposicao');
+    },
+
+    _printHtml(html, filename) {
+        const win = window.open('', '_blank', 'width=900,height=700');
+        if (!win) { Toast.show('Permita popups para gerar o PDF!', 'error'); return; }
+        win.document.write(html);
+        win.document.close();
+        win.onload = () => {
+            setTimeout(() => {
+                win.print();
+            }, 500);
+        };
+    }
+};
+
+// ==========================================
 // NAVEGAÇÃO
 // ==========================================
 const Navigation = {
@@ -935,6 +1244,7 @@ const Navigation = {
             case 'inventory': Inventory.render(); break;
             case 'snippets': Snippets.render(); break;
             case 'services': Services.render(); break;
+            case 'reports': Reports.init(); break;
         }
     }
 };
