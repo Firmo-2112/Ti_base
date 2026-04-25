@@ -1093,8 +1093,9 @@ const Reports = {
             </div>
             <table>
                 <thead><tr><th>Nome do Item</th><th style="text-align:center;">Quantidade</th></tr></thead>
-                <tbody>${tableRows}</tbody>
-                <br><br>
+                <br>
+                <tbody>${tableRows}<br><br></tbody>
+                
             </table>
             
             ${this._buildPdfFooter()}
