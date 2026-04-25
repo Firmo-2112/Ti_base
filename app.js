@@ -1,7 +1,6 @@
 // FUNDO BINÁRIO
-
 const canvas = document.getElementById('matrix');
-const ctx = canvas.getContext('2d');
+const ctx = canvas.getContext('2d'); 
 
 canvas.height = window.innerHeight;
 canvas.width = window.innerWidth;
@@ -32,6 +31,7 @@ drops[i]=0;
 }
 
 setInterval(draw,33);
+
 
 
 // ==========================================
