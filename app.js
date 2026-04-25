@@ -1047,11 +1047,11 @@ const Reports = {
                 <div style="flex:1;min-width:180px;text-align:center;">
                     <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Assinatura do Responsável</div>
                 </div>
-                <div style="flex:1;min-width:180px;text-align:center;">
-                    <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Assinatura de Recebido por</div>
-                </div>
                 <div style="flex:1;min-width:130px;text-align:center;">
                     <div style="margin-top:40px;font-size:12px;color:#333;">Data: ___/___/______</div>
+                </div>
+                <div style="flex:1;min-width:180px;text-align:center;">
+                    <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Assinatura de Recebido por</div>
                 </div>
             </div>
         </div>`;
