@@ -62,9 +62,9 @@
 [data-theme="light"] {
     --bg-void:     #f0f4ff;
     --bg-base:     #e8effc;
-    --bg-surface:  #ffffff;
-    --bg-elevated: #f8faff;
-    --bg-card:     #ffffff;
+    --bg-surface:  #ffffff81;
+    --bg-elevated: #f8faff5f;
+    --bg-card:     #ffffff86;
     --bg-hover:    rgba(0, 100, 200, 0.05);
     --bg-overlay:  rgba(240, 244, 255, 0.9);
 
