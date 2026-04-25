@@ -59,7 +59,7 @@
     --t-slow:   400ms var(--ease-out-expo);
 }
 
-[data-theme="light"] canvas {
+[data-theme="light"] {
     opacity: 0.05;
     --bg-void:     #f0f4ff;
     --bg-base:     #e8effc;
