@@ -125,7 +125,7 @@ Canvas {
 }
 
 [data-theme="light"] Canvas {
-    opacity: 0.7;
+    opacity: 0.5;
 }
 
 .app-container,
