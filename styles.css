@@ -60,7 +60,8 @@
 }
 
 [data-theme="light"] canvas {
-    --bg-void:     #f0f4ffa9;
+    opacity: 1;
+    --bg-void:     #f0f4ff;
     --bg-base:     #e8effc;
     --bg-surface:  rgba(255, 255, 255, 0.5);
     --bg-elevated: rgba(255, 255, 255, 0.7);
