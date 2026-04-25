@@ -8,17 +8,190 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 
-<header class="mobile-header">
-    <button class="mobile-menu-btn" id="menuToggle">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
-    </button>
 
-    <h1 class="mobile-title">Setor de TI</h1>
-</header>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setor TI</title>
+
+<style>
+:root{
+--bg-card: rgba(13,26,48,0.65);
+--bg-surface: rgba(10,22,40,0.55);
+--bg-elevated: rgba(15,31,56,0.55);
+--primary:#00d4ff;
+--text:#e2f0ff;
+}
+
+body{
+margin:0;
+font-family:Arial;
+background:#020817;
+color:var(--text);
+overflow-x:hidden;
+}
+
+/* BACKGROUND BINÁRIO */
+canvas{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:0;
+opacity:.2;
+}
+
+/* SIDEBAR */
+.sidebar{
+width:250px;
+background:var(--bg-surface);
+height:100vh;
+position:fixed;
+left:0;
+top:0;
+transition:.3s;
+padding:20px;
+z-index:10;
+backdrop-filter:blur(10px);
+}
+
+.sidebar.active{
+transform:translateX(0);
+}
+
+.sidebar.hidden{
+transform:translateX(-100%);
+}
+
+/* MAIN */
+.main{
+margin-left:250px;
+padding:20px;
+}
+
+/* HEADER MOBILE */
+.mobile-header{
+display:none;
+justify-content:center;
+align-items:center;
+position:sticky;
+top:0;
+background:var(--bg-surface);
+padding:10px;
+z-index:20;
+backdrop-filter:blur(10px);
+}
+
+.mobile-title{
+text-align:center;
+width:100%;
+}
+
+.mobile-menu-btn{
+position:absolute;
+left:10px;
+background:none;
+border:none;
+color:white;
+}
+
+/* CARDS */
+.card{
+background:var(--bg-card);
+padding:20px;
+border-radius:10px;
+margin-bottom:20px;
+backdrop-filter:blur(10px);
+}
+
+/* MOBILE */
+@media(max-width:768px){
+.sidebar{
+transform:translateX(-100%);
+}
+
+.main{
+margin-left:0;
+}
+
+.mobile-header{
+display:flex;
+}
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="sidebar hidden" id="sidebar">
+<h2>Setor TI</h2>
+<p>Menu</p>
+</div>
+
+<div class="mobile-header">
+<button class="mobile-menu-btn" id="menuToggle">☰</button>
+<h1 class="mobile-title">Setor TI</h1>
+</div>
+
+<div class="main">
+<div class="card">Dashboard</div>
+<div class="card">Estoque</div>
+<div class="card">Serviços</div>
+</div>
+
+<script>
+// MENU
+const btn = document.getElementById('menuToggle');
+const sidebar = document.getElementById('sidebar');
+
+btn.onclick = () => {
+sidebar.classList.toggle('hidden');
+};
+
+// FUNDO BINÁRIO
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
+
+const letters = '01';
+const fontSize = 14;
+const columns = canvas.width / fontSize;
+
+const drops = [];
+for(let x=0;x<columns;x++) drops[x]=1;
+
+function draw(){
+ctx.fillStyle = 'rgba(0,0,0,0.05)';
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ctx.fillStyle = '#00d4ff';
+ctx.font = fontSize+'px monospace';
+
+for(let i=0;i<drops.length;i++){
+const text = letters[Math.floor(Math.random()*letters.length)];
+ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+
+if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
+drops[i]=0;
+
+ drops[i]++;
+}
+}
+
+setInterval(draw,33);
+</script>
+
+</body>
+</html>
+
+
 
 <body>
     <!-- Tela de Login -->

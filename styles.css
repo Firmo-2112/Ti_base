@@ -21,9 +21,7 @@
     --bg-base:        #060d1f;
     --bg-surface:     #0a1628;
     --bg-elevated:    #0f1f38;
-    --bg-card: rgba(13, 26, 48, 0.65);
-    --bg-surface: rgba(10, 22, 40, 0.55);
-    --bg-elevated: rgba(15, 31, 56, 0.55);
+    --bg-card:        #0d1a30;
     --bg-hover:       rgba(0, 212, 255, 0.05);
     --bg-overlay:     rgba(2, 8, 23, 0.85);
 
@@ -61,23 +59,12 @@
     --t-slow:   400ms var(--ease-out-expo);
 }
 
-.dashboard-card,
-.stat-card,
-.inventory-container,
-.snippets-container,
-.services-container {
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-}
-
 [data-theme="light"] {
     --bg-void:     #f0f4ff;
     --bg-base:     #e8effc;
     --bg-surface:  #ffffff;
     --bg-elevated: #f8faff;
-    --bg-card: rgba(13, 26, 48, 0.65);
-    --bg-surface: rgba(10, 22, 40, 0.55);
-    --bg-elevated: rgba(15, 31, 56, 0.55);
+    --bg-card:     #ffffff;
     --bg-hover:    rgba(0, 100, 200, 0.05);
     --bg-overlay:  rgba(240, 244, 255, 0.9);
 
@@ -270,7 +257,7 @@ body::after {
 }
 
 .input-icon > svg:first-child {
-    position: static;
+    position: absolute;
     left: 0.875rem;
     width: 18px;
     height: 18px;
@@ -580,7 +567,7 @@ body::after {
 .mobile-header {
     display: none;
     align-items: center;
-    justify-content: center; /* CENTRALIZA */
+    justify-content: space-between;
     padding: 0.875rem 1.25rem;
     background: var(--bg-surface);
     border-bottom: 1px solid var(--border);
@@ -588,11 +575,16 @@ body::after {
     top: 0;
     z-index: 50;
     backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 
 .mobile-title {
-    text-align: center;
-    width: 100%;
+    font-family: 'Oxanium', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-bright);
 }
 
 .mobile-menu-btn {
@@ -1850,25 +1842,4 @@ body::after {
     }
 
     #binaryCanvas { display: none; }
-}
-
-@media (max-width: 768px) {
-    .mobile-header {
-        display: flex;
-    }
-
-    .sidebar {
-        transform: translateX(-100%);
-        position: fixed;
-    }
-
-    .sidebar.active {
-        transform: translateX(0);
-    }
-
-    .main-content {
-        margin-left: 0;
-    }
-}
-
 }
