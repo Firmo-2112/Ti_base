@@ -60,11 +60,11 @@
 }
 
 [data-theme="light"] canvas {
-    --bg-void:     #f0f4ff;
-    --bg-base:     #e8effc;
-    --bg-surface:  rgba(255, 255, 255, 0.5);
-    --bg-elevated: rgba(255, 255, 255, 0.7);
-    --bg-card:     rgba(255, 255, 255, 0.86);
+    --bg-void: #eef6ff;
+    --bg-base: #e6f0ff;
+    --bg-card: rgba(255, 255, 255, 0.55);
+    --bg-surface: rgba(255, 255, 255, 0.45);
+    --bg-elevated: rgba(255, 255, 255, 0.6);
     --bg-hover:    rgba(0, 100, 200, 0.05);
     --bg-overlay:  rgba(240, 244, 255, 0.9);
 
@@ -73,38 +73,20 @@
     --text-secondary: #4a6fa5;
     --text-muted:     #8badd4;
 
-    --border:        rgba(0, 100, 200, 0.15);
-    --border-bright: rgba(0, 100, 200, 0.4);
+    --border: rgba(0, 150, 255, 0.15);
+    --border-bright: rgba(0, 200, 255, 0.4);
     --border-subtle: rgba(0, 100, 200, 0.07);
 
     --primary:       #0066cc;
-    --primary-dim:   rgba(0, 102, 204, 0.1);
-    --primary-glow:  rgba(0, 102, 204, 0.25);
+    --primary-dim: rgba(0, 207, 255, 0.12);
+    --primary-glow: rgba(0, 207, 255, 0.35);
     --primary-hover: #0055aa;
 
-    --shadow-sm: 0 2px 8px rgba(255, 255, 255, 0.08);
-    --shadow-md: 0 4px 20px rgba(255, 255, 255, 0.1);
-    --shadow-lg: 0 8px 40px rgba(255, 255, 255, 0.12);
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 20px rgba(0,0,0,0.1);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
     --glow-sm:   0 0 12px rgba(0, 102, 204, 0.15);
     --glow-md:   0 0 24px rgba(0, 102, 204, 0.2);
-    --glow-lg:    0 0 48px rgba(0, 212, 255, 0.2);
-
-    --radius-xs:  4px;
-    --radius-sm:  6px;
-    --radius-md:  10px;
-    --radius-lg:  14px;
-    --radius-xl:  20px;
-    --radius-2xl: 28px;
-
-    --sidebar-width:     260px;
-    --sidebar-collapsed: 68px;
-    --header-height:     60px;
-
-    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-    --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
-    --t-fast:   120ms ease;
-    --t-normal: 240ms var(--ease-out-expo);
-    --t-slow:   400ms var(--ease-out-expo);
 }
 
 *, *::before, *::after {
@@ -143,7 +125,7 @@ Canvas {
 }
 
 [data-theme="light"] Canvas {
-    opacity: 0.06;
+    opacity: 1;
 }
 
 .app-container,
