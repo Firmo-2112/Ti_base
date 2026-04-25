@@ -19,9 +19,9 @@
 
     --bg-void:        #020817;
     --bg-base:        #060d1f;
-    --bg-surface: #060d1f;
-    --bg-elevated: #060d1f;
-    --bg-card: #060d1f;
+    --bg-surface: rgba(10, 22, 40, 0.778);
+    --bg-elevated: rgba(15, 31, 56, 0.804);
+    --bg-card: rgba(13, 26, 48, 0.775);
     --bg-hover:       rgba(0, 212, 255, 0.05);
     --bg-overlay:     rgba(2, 8, 23, 0.85);
 
@@ -59,12 +59,12 @@
     --t-slow:   400ms var(--ease-out-expo);
 }
 
-[data-theme="light"] {
+[data-theme="light"] canvas {
     --bg-void:     #f0f4ffa9;
     --bg-base:     #e8effc;
-    --bg-surface:  rgba(196, 199, 207, 0.626);
-    --bg-elevated: rgba(255, 255, 255, 0.619);
-    --bg-card:     rgba(231, 227, 227, 0.56);
+    --bg-surface:  rgba(255, 255, 255, 0.5);
+    --bg-elevated: rgba(255, 255, 255, 0.7);
+    --bg-card:     rgba(255, 255, 255, 0.86);
     --bg-hover:    rgba(0, 100, 200, 0.05);
     --bg-overlay:  rgba(240, 244, 255, 0.9);
 
