@@ -119,11 +119,11 @@ Canvas {
     width: 100%;
     height: 100%;
     z-index: 0;
-    opacity: 1;
+    opacity: 0.9;
 }
 
 [data-theme="light"] Canvas {
-    opacity: 1;
+    opacity: 0.3;
 }
 
 .app-container,
@@ -634,7 +634,7 @@ body::after {
 }
 
 .content-header .subtitle {
-    font-size: 0.8125rem;
+    font-size: 1rem;
     color: var(--text-secondary);
     letter-spacing: 0.02em;
 }
@@ -1844,7 +1844,7 @@ body::after {
     display: flex;
     gap: 0.5rem;
     margin-bottom: 1.5rem;
-    background: var(--bg-secondary);
+    background: var(--bg-surface);
     padding: 0.375rem;
     border-radius: 12px;
     border: 1px solid var(--border);
@@ -1863,7 +1863,7 @@ body::after {
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--text-secondary);
-    background: transparent;
+    background: var(--bg-surface);
     transition: all 0.2s;
     font-family: inherit;
 }
@@ -1875,12 +1875,12 @@ body::after {
 }
 
 .report-subtab:hover {
-    background: var(--bg-tertiary);
+    background: var(--bg-surface);
     color: var(--text-primary);
 }
 
 .report-subtab.active {
-    background: var(--accent);
+    background: var(--bg-surface);
     color: #fff;
     box-shadow: 0 2px 8px rgba(0,212,255,0.3);
 }
@@ -1917,7 +1917,7 @@ body::after {
 }
 
 .report-preview-box {
-    background: var(--bg-secondary);
+    background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: 12px;
     min-height: 200px;
@@ -1963,7 +1963,7 @@ body::after {
 
 .pedido-form-card,
 .pedido-list-card {
-    background: var(--bg-secondary);
+    background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 1.25rem;
@@ -2001,7 +2001,7 @@ body::after {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background: var(--bg-tertiary);
+    background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 0.625rem 0.875rem;
@@ -2022,7 +2022,7 @@ body::after {
 .pedido-item-qty {
     font-size: 0.8rem;
     color: var(--text-secondary);
-    background: var(--bg-secondary);
+    background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: 6px;
     padding: 0.2rem 0.5rem;
@@ -2067,7 +2067,7 @@ body::after {
     font-size: 0.8rem;
     border-radius: 6px;
     border: 1px solid var(--border);
-    background: var(--bg-secondary);
+    background: var(var(--bg-surface));
     color: var(--text-primary);
 }
 
