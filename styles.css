@@ -60,7 +60,7 @@
 }
 
 [data-theme="light"] {
-    --bg-void:     #f0f4ff;
+    --bg-void:     #f0f4ffa9;
     --bg-base:     #e8effc;
     --bg-surface:  rgba(196, 199, 207, 0.626);
     --bg-elevated: rgba(255, 255, 255, 0.619);
