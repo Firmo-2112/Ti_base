@@ -1,4 +1,4 @@
-# 🚀 Ti Base System
+# 🚀 TI System
 
 Sistema web em produção para gerenciamento e processamento de dados, hospedado na plataforma Railway com integração a banco de dados MySQL.
 
