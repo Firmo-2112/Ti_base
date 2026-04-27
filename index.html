@@ -11,55 +11,82 @@
 <body>
     <canvas id="matrix"></canvas>
     
+    <!-- Lottie Player CDN -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@2.0.8/dist/lottie-player.js"></script>
+
     <!-- Tela de Login -->
     <div class="login-screen" id="loginScreen">
-        <div class="login-container">
-            <div class="login-header">
-                <svg class="login-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="2" y="3" width="20" height="14" rx="2"/>
-                    <line x1="8" y1="21" x2="16" y2="21"/>
-                    <line x1="12" y1="17" x2="12" y2="21"/>
-                </svg>
-                <h1>Setor de TI</h1>
-                <p>Sistema de Gerenciamento</p>
+
+        <!-- Lado esquerdo: animação -->
+        <div class="login-animation-side">
+            <div class="login-anim-content">
+                <lottie-player
+                    id="loginLottie"
+                    src="https://lottie.host/f0a74359-ff3d-4954-a3f9-72bdaea8e938/3IRrDqkDBX.json"
+                    background="transparent"
+                    speed="1"
+                    loop
+                    autoplay
+                    style="width:100%;max-width:480px;height:auto;"
+                ></lottie-player>
+                <div class="login-anim-text">
+                    <h2>Setor de TI</h2>
+                    <p>Prefeitura Municipal de Japaratuba</p>
+                </div>
             </div>
-            <form class="login-form" id="loginForm">
-                <div class="form-group">
-                    <label for="loginUser">Usuário</label>
-                    <div class="input-icon">
-                        <input type="text" id="loginUser" placeholder="Digite seu usuário" required autofocus>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">Senha</label>
-                    <div class="input-icon">
-                        <input type="password" id="loginPassword" placeholder="Digite sua senha" required>
-                        <button type="button" class="password-toggle" id="passwordToggle">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="login-error" id="loginError">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="15" y1="9" x2="9" y2="15"/>
-                        <line x1="9" y1="9" x2="15" y2="15"/>
-                    </svg>
-                    <span id="loginErrorMessage">Usuário ou senha inválidos!</span>
-                </div>
-                <button type="submit" class="btn btn-primary login-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-                        <polyline points="10 17 15 12 10 7"/>
-                        <line x1="15" y1="12" x2="3" y2="12"/>
-                    </svg>
-                    Entrar
-                </button>
-            </form>
         </div>
+
+        <!-- Lado direito: formulário -->
+        <div class="login-form-side">
+            <div class="login-container">
+                <div class="login-header">
+                    <svg class="login-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                    <h1>Setor de TI</h1>
+                    <p>Sistema de Gerenciamento</p>
+                </div>
+                <form class="login-form" id="loginForm">
+                    <div class="form-group">
+                        <label for="loginUser">Usuário</label>
+                        <div class="input-icon">
+                            <input type="text" id="loginUser" placeholder="Digite seu usuário" required autofocus>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Senha</label>
+                        <div class="input-icon">
+                            <input type="password" id="loginPassword" placeholder="Digite sua senha" required>
+                            <button type="button" class="password-toggle" id="passwordToggle">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="login-error" id="loginError">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="15" y1="9" x2="9" y2="15"/>
+                            <line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                        <span id="loginErrorMessage">Usuário ou senha inválidos!</span>
+                    </div>
+                    <button type="submit" class="btn btn-primary login-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                            <polyline points="10 17 15 12 10 7"/>
+                            <line x1="15" y1="12" x2="3" y2="12"/>
+                        </svg>
+                        Entrar
+                    </button>
+                </form>
+            </div>
+        </div>
+
     </div>
 
     <div class="app-container" id="appContainer" style="display: none;">
