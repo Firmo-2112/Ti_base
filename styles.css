@@ -2078,6 +2078,72 @@ body::after {
     gap: 0;
 }
 
+
+
+
+
+
+.sidebar-character {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 160px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Container */
+.avatar {
+  position: relative;
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Cabeça */
+.head {
+  width: 50px;
+  height: 50px;
+  background: #00ffe1;
+  border-radius: 50%;
+  margin: 0 auto;
+  box-shadow: 0 0 15px #00ffe1;
+  animation: blink 4s infinite;
+}
+
+/* Corpo */
+.body {
+  width: 70px;
+  height: 60px;
+  background: #0f172a;
+  border-radius: 10px;
+  margin: 5px auto;
+  border: 1px solid #00ffe1;
+}
+
+/* Notebook */
+.laptop {
+  width: 80px;
+  height: 20px;
+  background: #00ffe1;
+  border-radius: 5px;
+  margin: 0 auto;
+  box-shadow: 0 0 10px #00ffe1;
+}
+
+/* Animações */
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes blink {
+  0%, 95%, 100% { transform: scaleY(1); }
+  97% { transform: scaleY(0.1); }
+}
 /* ==========================================
    BOTÃO PDF NOS CARDS DE SERVIÇO
    ========================================== */
@@ -2113,5 +2179,166 @@ body::after {
     white-space: nowrap;
 }
 
+/* ==========================================
+   USER AVATAR (sidebar)
+   ========================================== */
+.user-identity {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.625rem 0.5rem;
+    margin-bottom: 0.5rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
 
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #000;
+    font-family: 'Oxanium', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 10px var(--primary-glow);
+    letter-spacing: 0;
+    cursor: default;
+    user-select: none;
+}
 
+.user-avatar-name {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+/* ==========================================
+   ACTIVITY — user tag
+   ========================================== */
+.activity-user {
+    display: inline-block;
+    font-size: 0.6875rem;
+    color: var(--primary);
+    font-weight: 600;
+    margin-left: 4px;
+    opacity: 0.85;
+}
+
+/* ==========================================
+   ACTIVITY — snapshot (serviço excluído)
+   ========================================== */
+.activity-snapshot-btn {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 0.6875rem;
+    color: var(--primary);
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    border-radius: var(--radius-xs);
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all var(--t-fast);
+}
+.activity-snapshot-btn:hover {
+    background: var(--primary-dim);
+    border-color: var(--primary);
+}
+
+.activity-snapshot {
+    display: none;
+    margin-top: 6px;
+    background: var(--bg-void);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    gap: 4px;
+    flex-direction: column;
+}
+.activity-snapshot.visible { display: flex; }
+
+.snap-row {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 3px;
+}
+.snap-row:last-child { border-bottom: none; }
+.snap-row.full { flex-direction: column; }
+.snap-lbl {
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    min-width: 80px;
+    font-weight: 600;
+    padding-top: 2px;
+}
+
+/* ==========================================
+   SERVICE CARD — authorship
+   ========================================== */
+.service-authorship {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 0 2px 0;
+    border-top: 1px dashed var(--border-subtle);
+    margin-top: 6px;
+}
+
+.service-emitido-por,
+.service-modificado-por {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+}
+
+.service-emitido-por { color: var(--text-secondary); }
+.service-modificado-por { color: var(--warning); }
+
+/* ==========================================
+   BTN PDF (já declarado antes, mantém)
+   ========================================== */
+.btn-pdf {
+    background: var(--bg-elevated);
+    color: var(--warning);
+    border: 1px solid rgba(245,158,11,0.35);
+    font-weight: 600;
+    gap: 0.35rem;
+    display: inline-flex;
+    align-items: center;
+}
+.btn-pdf:hover {
+    background: rgba(245,158,11,0.12);
+    border-color: rgba(245,158,11,0.6);
+    color: var(--warning);
+    transform: translateY(-1px);
+    box-shadow: 0 0 12px rgba(245,158,11,0.25);
+}
+
+/* pedido espec tag */
+.pedido-item-espec {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.15rem 0.5rem;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
