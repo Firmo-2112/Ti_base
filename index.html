@@ -10,10 +10,21 @@
 
 <body>
     <canvas id="matrix"></canvas>
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     
     <!-- Tela de Login -->
     <div class="login-screen" id="loginScreen">
+        <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+    <div class="sidebar-character">
+    <lottie-player 
+        src="SEU_JSON_AQUI"
+        background="transparent"
+        speed="1"
+        style="width: 140px; height: 140px;"
+        loop
+        autoplay>
+    </lottie-player>
+    </div>
         <div class="login-container">
             <div class="login-header">
                 <svg class="login-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -119,17 +130,14 @@
                     <span>Relatórios</span>
                 </a>
 
-                <a>
-                    <lottie-player 
-                        src="loginani.json"
-                        background="transparent"
-                        speed="1"
-                        position="relative"
-                        style="width: 240px; height: 240px;"
-                        loop
-                        autoplay>
-                    </lottie-player>
-                </a>
+                <div class="sidebar-character">
+                    <div class="avatar">
+                        <div class="head"></div>
+                        <div class="body"></div>
+                        <div class="laptop"></div>
+                    </div>
+                </div>
+
             </nav>
             
             <div class="sidebar-footer">
@@ -156,6 +164,10 @@
                             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
                         </svg>
                     </span>
+                </div>
+                <div class="user-identity">
+                    <div class="user-avatar" id="userAvatar">?</div>
+                    <span class="user-avatar-name" id="userAvatarName"></span>
                 </div>
                 <button class="logout-btn" id="logoutBtn" title="Sair">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -570,10 +582,6 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label>Especificações do Produto</label>
-                                <input type="text" id="pedidoEspec" placeholder="Ex: Dell Inspiron 15, 8GB RAM, SSD 256GB">
-                            </div>
                             <button class="btn btn-primary" id="btnAdicionarPedido">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <line x1="12" y1="5" x2="12" y2="19"/>
@@ -802,6 +810,7 @@
             </div>
             <div class="modal-body">
                 <div class="service-view-meta" id="viewServiceMeta"></div>
+                <div class="service-authorship" id="viewServiceAuthorship" style="display:none;"></div>
                 <div class="service-view-section">
                     <h4>Descrição</h4>
                     <p id="viewServiceDescription"></p>
