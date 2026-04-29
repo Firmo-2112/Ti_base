@@ -2198,28 +2198,4 @@ body::after {
   z-index: 1;
 }
 
-/* Overlay de login */
-.login-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  background: rgba(0, 0, 0, 0.6); /* escurece o fundo */
-
-  z-index: 999; /* 🔥 acima de tudo */
-}
-
-/* Caixa de login */
-.login-box {
-  background: #0f172a;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0,255,200,0.2);
-  z-index: 1000;
-}
