@@ -46,7 +46,8 @@ const AppState = {
     inventoryActivities: [],
     servicesActivities: [],
     settings: { theme: 'dark' },
-    authToken: null
+    authToken: null,
+    currentUser: null   // { id, usuario, nome }
 };
 
 // ==========================================
@@ -56,10 +57,15 @@ const API = {
     BASE: '', // Mesmo domínio — Railway serve tudo junto
 
     headers() {
-        return {
+        const h = {
             'Content-Type': 'application/json',
             'x-auth-token': AppState.authToken || ''
         };
+        if (AppState.currentUser) {
+            h['x-user-id']   = String(AppState.currentUser.id || '');
+            h['x-user-nome'] = encodeURIComponent(AppState.currentUser.nome || AppState.currentUser.usuario || '');
+        }
+        return h;
     },
 
     async get(path) {
@@ -144,6 +150,10 @@ const LoginManager = {
         const token = sessionStorage.getItem('setorTI_token');
         if (token) {
             AppState.authToken = token;
+            const savedUser = sessionStorage.getItem('setorTI_user');
+            if (savedUser) {
+                try { AppState.currentUser = JSON.parse(savedUser); } catch(e) {}
+            }
             this.showApp();
         }
     },
@@ -159,7 +169,9 @@ const LoginManager = {
         try {
             const data = await API.post('/api/login', { usuario: user, senha: password });
             AppState.authToken = data.token;
+            AppState.currentUser = data.user;
             sessionStorage.setItem('setorTI_token', data.token);
+            sessionStorage.setItem('setorTI_user', JSON.stringify(data.user));
             this.showApp();
             Toast.show('Login realizado com sucesso!', 'success');
         } catch (err) {
@@ -173,7 +185,9 @@ const LoginManager = {
 
     logout() {
         sessionStorage.removeItem('setorTI_token');
+        sessionStorage.removeItem('setorTI_user');
         AppState.authToken = null;
+        AppState.currentUser = null;
         if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
 
         document.getElementById('appContainer').style.display = 'none';
@@ -220,10 +234,26 @@ const LoginManager = {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('appContainer').style.display = 'flex';
         this.resetInactivityTimer();
+        this.renderUserAvatar();
         ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'].forEach(event => {
             document.addEventListener(event, () => this.resetInactivityTimer(), { passive: true });
         });
         this.initializeApp();
+    },
+
+    renderUserAvatar() {
+        const user = AppState.currentUser;
+        if (!user) return;
+        const initial = (user.nome || user.usuario || '?').charAt(0).toUpperCase();
+        const avatarEl = document.getElementById('userAvatar');
+        if (avatarEl) {
+            avatarEl.textContent = initial;
+            avatarEl.title = user.nome || user.usuario;
+        }
+        const userNameEl = document.getElementById('userAvatarName');
+        if (userNameEl) {
+            userNameEl.textContent = user.nome || user.usuario;
+        }
     },
 
     async initializeApp() {
@@ -337,7 +367,8 @@ const ActivityLogger = {
             container.innerHTML = activities.map(a => {
                 const time = this.formatTime(a.data_atividade);
                 const icon = icons[a.acao] || icons.add;
-                return '<div class="activity-item"><div class="activity-icon ' + a.acao + '">' + icon + '</div><div class="activity-content"><span class="activity-text">' + a.detalhes + '</span><span class="activity-time">' + time + '</span></div></div>';
+                const userTag = a.usuario_nome ? '<span class="activity-user">por ' + a.usuario_nome + '</span>' : '';
+                return '<div class="activity-item"><div class="activity-icon ' + a.acao + '">' + icon + '</div><div class="activity-content"><span class="activity-text">' + a.detalhes + '</span><span class="activity-time">' + time + ' ' + userTag + '</span></div></div>';
             }).join('');
         } catch (e) { container.innerHTML = '<p style="color: var(--text-muted)">Erro ao carregar atividades</p>'; }
     },
@@ -360,7 +391,25 @@ const ActivityLogger = {
             container.innerHTML = activities.map(a => {
                 const time = this.formatTime(a.data_atividade);
                 const icon = icons[a.acao] || icons.add;
-                return '<div class="activity-item"><div class="activity-icon ' + a.acao + '">' + icon + '</div><div class="activity-content"><span class="activity-text">' + a.detalhes + '</span><span class="activity-time">' + time + '</span></div></div>';
+                const userTag = a.usuario_nome ? '<span class="activity-user">por ' + a.usuario_nome + '</span>' : '';
+                let snapshotBtn = '';
+                if (a.acao === 'delete' && a.snapshot && typeof a.snapshot === 'object') {
+                    const snap = a.snapshot;
+                    const snapId = 'snap-' + a.id;
+                    const priorityLabels = { baixa:'Baixa', media:'Média', alta:'Alta', urgente:'Urgente' };
+                    const statusLabel = snap.status === 'pending' ? 'Pendente' : 'Concluído';
+                    snapshotBtn = '<button class="activity-snapshot-btn" onclick="document.getElementById(\'' + snapId + '\').classList.toggle(\' visible\')">Ver dados</button>'
+                        + '<div class="activity-snapshot" id="' + snapId + '">'
+                        + '<div class="snap-row"><span class="snap-lbl">Título</span><span>' + (snap.titulo||'-') + '</span></div>'
+                        + '<div class="snap-row"><span class="snap-lbl">Setor/Cliente</span><span>' + (snap.cliente_setor||'-') + '</span></div>'
+                        + '<div class="snap-row"><span class="snap-lbl">Prioridade</span><span>' + (priorityLabels[snap.prioridade]||snap.prioridade||'-') + '</span></div>'
+                        + '<div class="snap-row"><span class="snap-lbl">Status</span><span>' + statusLabel + '</span></div>'
+                        + '<div class="snap-row"><span class="snap-lbl">Emitido por</span><span>' + (snap.criado_por||'-') + '</span></div>'
+                        + '<div class="snap-row full"><span class="snap-lbl">Descrição</span><span>' + (snap.descricao||'-') + '</span></div>'
+                        + '<div class="snap-row full"><span class="snap-lbl">Relatório</span><span>' + (snap.relatorio||'-') + '</span></div>'
+                        + '</div>';
+                }
+                return '<div class="activity-item"><div class="activity-icon ' + a.acao + '">' + icon + '</div><div class="activity-content"><span class="activity-text">' + a.detalhes + '</span><span class="activity-time">' + time + ' ' + userTag + '</span>' + snapshotBtn + '</div></div>';
             }).join('');
         } catch (e) { container.innerHTML = '<p style="color: var(--text-muted)">Erro ao carregar atividades</p>'; }
     },
@@ -775,6 +824,14 @@ const Services = {
         document.getElementById('viewServiceMeta').innerHTML = '<span class="service-status-badge ' + service.status + '">' + statusLabel + '</span><span class="service-priority ' + service.prioridade + '">' + (priorityLabels[service.prioridade] || service.prioridade) + '</span>' + (service.cliente_setor ? '<span>' + Inventory.escapeHtml(service.cliente_setor) + '</span>' : '') + (service.data_servico ? '<span>' + new Date(service.data_servico).toLocaleDateString('pt-BR') + '</span>' : '');
         document.getElementById('viewServiceDescription').textContent = service.descricao;
         document.getElementById('viewServiceReport').textContent = service.relatorio || 'Nenhum relatório registrado.';
+        const authEl = document.getElementById('viewServiceAuthorship');
+        if (authEl) {
+            let authHtml = '';
+            if (service.criado_por) authHtml += '<span class="service-emitido-por">Emitido por: ' + Inventory.escapeHtml(service.criado_por) + '</span>';
+            if (service.modificado_por) authHtml += '<span class="service-modificado-por">Modificado por: ' + Inventory.escapeHtml(service.modificado_por) + '</span>';
+            authEl.innerHTML = authHtml;
+            authEl.style.display = authHtml ? 'flex' : 'none';
+        }
         Modal.open('viewServiceModal');
     },
 
@@ -807,7 +864,8 @@ const Services = {
             await Dashboard.update();
             await ActivityLogger.renderServices();
         } catch (e) {
-            Toast.show('Erro ao salvar serviço!', 'error');
+            const msg = (e && e.error) ? e.error : 'Erro ao salvar serviço!';
+            Toast.show(msg, 'error');
         }
     },
 
@@ -819,7 +877,8 @@ const Services = {
             await Dashboard.update();
             await ActivityLogger.renderServices();
         } catch (e) {
-            Toast.show('Erro ao concluir serviço!', 'error');
+            const msg = (e && e.error) ? e.error : 'Erro ao concluir serviço!';
+            Toast.show(msg, 'error');
         }
     },
 
@@ -887,7 +946,10 @@ const Services = {
 
     <div style="display:flex;justify-content:space-between;margin-bottom:18px;align-items:flex-end;">
         <h2 style="margin:0;font-size:16px;color:#1a2744;">Relatório de Serviço</h2>
-        <span style="font-size:11px;color:#777;">Emitido em: ${today}</span>
+        <div style="text-align:right;">
+            <span style="font-size:11px;color:#777;display:block;">Emitido em: ${today}</span>
+            ${AppState.currentUser ? `<span style="font-size:11px;color:#777;display:block;">Emitido por: ${AppState.currentUser.nome || AppState.currentUser.usuario}</span>` : ''}
+        </div>
     </div>
 
     <!-- Tabela de metadados -->
@@ -962,11 +1024,15 @@ const Services = {
                 const statusLabel = this.getStatusLabel(service.status);
                 const priorityLabel = this.getPriorityLabel(service.prioridade);
                 const date = service.data_servico ? new Date(service.data_servico).toLocaleDateString('pt-BR') : '-';
-                // Botão Excluir REMOVIDO — apenas Editar, Concluir e Gerar PDF
+                // Dono = sem usuario_id registrado (legado) OU mesmo id
+                const curId = AppState.currentUser && AppState.currentUser.id;
+                const isOwnerForActions = !service.usuario_id || service.usuario_id === curId;
                 let actionsHtml = '<div class="service-card-actions" onclick="event.stopPropagation()">';
-                actionsHtml += '<button class="btn btn-sm btn-secondary" onclick="Services.openEditModal(\'' + service.id + '\')">Editar</button>';
-                if (service.status === 'pending') {
-                    actionsHtml += '<button class="btn btn-sm btn-primary" onclick="Services.completeService(\'' + service.id + '\')">Concluir</button>';
+                if (isOwnerForActions) {
+                    actionsHtml += '<button class="btn btn-sm btn-secondary" onclick="Services.openEditModal(\'' + service.id + '\')">Editar</button>';
+                    if (service.status === 'pending') {
+                        actionsHtml += '<button class="btn btn-sm btn-primary" onclick="Services.completeService(\'' + service.id + '\')">Concluir</button>';
+                    }
                 }
                 actionsHtml += '<button class="btn btn-sm btn-pdf" onclick="Services.gerarPdfServico(\'' + service.id + '\')" title="Gerar PDF deste serviço">'
                     + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;margin-right:3px;">'
@@ -975,7 +1041,9 @@ const Services = {
                     + '<line x1="12" y1="15" x2="12" y2="3"/>'
                     + '</svg>PDF</button>';
                 actionsHtml += '</div>';
-                return '<div class="service-card" onclick="Services.viewService(\'' + service.id + '\')"><div class="service-card-header"><h4 class="service-title">' + Inventory.escapeHtml(service.titulo) + '</h4><span class="service-status-badge ' + service.status + '">' + statusLabel + '</span></div><div class="service-meta">' + (service.cliente_setor ? '<span>' + Inventory.escapeHtml(service.cliente_setor) + '</span>' : '') + '<span class="service-priority ' + service.prioridade + '">' + priorityLabel + '</span><span>' + date + '</span></div><p class="service-description">' + Inventory.escapeHtml(service.descricao) + '</p>' + actionsHtml + '</div>';
+                const emitidoPor = service.criado_por ? '<span class="service-emitido-por">Emitido por: ' + Inventory.escapeHtml(service.criado_por) + '</span>' : '';
+                const modificadoPor = service.modificado_por ? '<span class="service-modificado-por">Modificado por: ' + Inventory.escapeHtml(service.modificado_por) + '</span>' : '';
+                return '<div class="service-card" onclick="Services.viewService(\'' + service.id + '\')"><div class="service-card-header"><h4 class="service-title">' + Inventory.escapeHtml(service.titulo) + '</h4><span class="service-status-badge ' + service.status + '">' + statusLabel + '</span></div><div class="service-meta">' + (service.cliente_setor ? '<span>' + Inventory.escapeHtml(service.cliente_setor) + '</span>' : '') + '<span class="service-priority ' + service.prioridade + '">' + priorityLabel + '</span><span>' + date + '</span></div><p class="service-description">' + Inventory.escapeHtml(service.descricao) + '</p>' + (emitidoPor || modificadoPor ? '<div class="service-authorship">' + emitidoPor + modificadoPor + '</div>' : '') + actionsHtml + '</div>';
             }).join('');
         }
     }
@@ -1186,12 +1254,13 @@ const Reports = {
             });
 
             const today = new Date().toLocaleDateString('pt-BR');
+            const emitidoPorEstoque = AppState.currentUser ? AppState.currentUser.nome || AppState.currentUser.usuario : '';
             const headerHtml = await this._buildPdfHeader(brasao);
             const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:40px;color:#222;}table{width:100%;border-collapse:collapse;}th{background:#1a2744;color:#fff;padding:10px 12px;font-size:13px;text-align:left;}th:last-child{text-align:center;width:100px;}</style></head><body>
             ${headerHtml}
             <div style="display:flex;justify-content:space-between;margin-bottom:16px;align-items:flex-end;">
                 <h2 style="margin:0;font-size:16px;color:#1a2744;">Relatório de Estoque</h2>
-                <span style="font-size:11px;color:#777;">Emitido em: ${today}</span>
+                <div style="text-align:right;"><span style="font-size:11px;color:#777;display:block;">Emitido em: ${today}</span>${emitidoPorEstoque ? `<span style="font-size:11px;color:#777;display:block;">Emitido por: ${emitidoPorEstoque}</span>` : ''}</div>
             </div>
             <table>
                 <thead><tr><th>Nome do Item</th><th style="text-align:center;">Quantidade</th></tr></thead>
@@ -1216,6 +1285,7 @@ const Reports = {
             if (filterVal) services = services.filter(s => s.status === filterVal);
             const brasao = await this.loadBrasao();
             const today = new Date().toLocaleDateString('pt-BR');
+            const emitidoPorServicos = AppState.currentUser ? AppState.currentUser.nome || AppState.currentUser.usuario : '';
 
             let tableRows = services.map((s, i) => {
                 const bg = i % 2 === 0 ? '#f9fafb' : '#fff';
@@ -1240,7 +1310,7 @@ const Reports = {
             ${headerHtml}
             <div style="display:flex;justify-content:space-between;margin-bottom:16px;align-items:flex-end;">
                 <h2 style="margin:0;font-size:16px;color:#1a2744;">Relatório de Serviços</h2>
-                <span style="font-size:11px;color:#777;">Emitido em: ${today}</span>
+                <div style="text-align:right;"><span style="font-size:11px;color:#777;display:block;">Emitido em: ${today}</span>${emitidoPorServicos ? `<span style="font-size:11px;color:#777;display:block;">Emitido por: ${emitidoPorServicos}</span>` : ''}</div>
             </div>
             <table>
                 <thead><tr><th>Título</th><th>Setor/Cliente</th><th style="width:110px;">Data de Solicitação</th><th style="width:110px;">Data de Conclusão</th><th style="width:90px;">Status</th><th>Descrição</th></tr></thead>
@@ -1259,6 +1329,7 @@ const Reports = {
         if (this.pedidoItems.length === 0) { Toast.show('Adicione itens ao pedido!', 'error'); return; }
         const brasao = await this.loadBrasao();
         const today = new Date().toLocaleDateString('pt-BR');
+        const emitidoPorPedido = AppState.currentUser ? AppState.currentUser.nome || AppState.currentUser.usuario : '';
 
         const nivelColor = { Baixa: '#059669', Média: '#d97706', Alta: '#ea580c', Urgente: '#dc2626' };
 
@@ -1279,7 +1350,7 @@ const Reports = {
         ${headerHtml}
         <div style="display:flex;justify-content:space-between;margin-bottom:16px;align-items:flex-end;">
             <h2 style="margin:0;font-size:16px;color:#1a2744;">Pedido de Reposição de Estoque</h2>
-            <span style="font-size:11px;color:#777;">Emitido em: ${today}</span>
+            <div style="text-align:right;"><span style="font-size:11px;color:#777;display:block;">Emitido em: ${today}</span>${emitidoPorPedido ? `<span style="font-size:11px;color:#777;display:block;">Emitido por: ${emitidoPorPedido}</span>` : ''}</div>
         </div>
         <table>
             <thead><tr><th style="width:40px;">#</th><th>Nome do Produto</th><th>Especificações</th><th style="width:100px;text-align:center;">Quantidade</th><th style="width:130px;text-align:center;">Nível de Necessidade</th></tr></thead>
