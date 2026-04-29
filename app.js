@@ -823,26 +823,108 @@ const Services = {
         }
     },
 
-    deleteService(id) {
-        const service = AppState.services.find(s => String(s.id) === String(id));
-        if (!service) return;
-        Modal.confirm('Excluir Serviço', 'Tem certeza que deseja excluir "' + service.titulo + '"?', async () => {
-            try {
-                await API.delete('/api/servicos/' + id);
-                Toast.show('Serviço excluído com sucesso!', 'success');
-                await this.render();
-                await Dashboard.update();
-            } catch (e) {
-                Toast.show('Erro ao excluir serviço!', 'error');
-            }
-        });
-    },
-
     getStatusLabel(status) { return status === 'pending' ? 'Pendente' : 'Concluído'; },
 
     getPriorityLabel(priority) {
         const labels = { baixa: 'Baixa', media: 'Média', alta: 'Alta', urgente: 'Urgente' };
         return labels[priority] || priority;
+    },
+
+    // ==========================================
+    // GERADOR DE PDF INDIVIDUAL POR SERVIÇO
+    // ==========================================
+    async gerarPdfServico(id) {
+        const service = AppState.services.find(s => String(s.id) === String(id));
+        if (!service) return;
+
+        try {
+            const brasao = await Reports.loadBrasao();
+            const today = new Date().toLocaleDateString('pt-BR');
+            const date = service.data_servico ? new Date(service.data_servico).toLocaleDateString('pt-BR') : '-';
+
+            const statusLabel = service.status === 'pending' ? 'Pendente' : 'Concluído';
+            const statusColor = service.status === 'pending' ? '#d97706' : '#059669';
+            const priorityLabels = { baixa: 'Baixa', media: 'Média', alta: 'Alta', urgente: 'Urgente' };
+            const priorityColors = { baixa: '#059669', media: '#0ea5e9', alta: '#d97706', urgente: '#dc2626' };
+            const prioridade = service.prioridade || 'media';
+
+            const headerHtml = await Reports._buildPdfHeader(brasao);
+
+            const html = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; color: #222; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #1a2744; color: #fff; padding: 10px 12px; font-size: 13px; text-align: left; }
+        td { padding: 9px 12px; border-bottom: 1px solid #e5e7eb; font-size: 13px; }
+        .section-title {
+            background: #1a2744;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 8px 12px;
+            letter-spacing: 0.5px;
+            margin-top: 20px;
+        }
+        .text-block {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 14px 16px;
+            font-size: 13px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-top: 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    ${headerHtml}
+
+    <div style="display:flex;justify-content:space-between;margin-bottom:16px;align-items:flex-end;">
+        <h2 style="margin:0;font-size:16px;color:#1a2744;">Relatório de Serviço</h2>
+        <span style="font-size:11px;color:#777;">Emitido em: ${today}</span>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Setor/Cliente</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Prioridade</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="background:#f9fafb;">
+                <td style="font-weight:600;">${Inventory.escapeHtml(service.titulo)}</td>
+                <td>${Inventory.escapeHtml(service.cliente_setor || '-')}</td>
+                <td style="white-space:nowrap;">${date}</td>
+                <td><span style="color:${statusColor};font-weight:700;">${statusLabel}</span></td>
+                <td><span style="color:${priorityColors[prioridade]};font-weight:700;">${priorityLabels[prioridade] || prioridade}</span></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="section-title">Descrição do Serviço</div>
+    <div class="text-block">${Inventory.escapeHtml(service.descricao || 'Nenhuma descrição registrada.')}</div>
+
+    <div class="section-title">Relatório de Atividades</div>
+    <div class="text-block">${Inventory.escapeHtml(service.relatorio || 'Nenhum relatório registrado.')}</div>
+
+    ${Reports._buildPdfFooter()}
+</body>
+</html>`;
+
+            Reports._printHtml(html, 'Servico_' + service.titulo.replace(/\s+/g, '_').substring(0, 30));
+        } catch (e) {
+            Toast.show('Erro ao gerar PDF do serviço!', 'error');
+        }
     },
 
     async render(searchTerm = '', statusFilter = '') {
@@ -875,12 +957,23 @@ const Services = {
                 const statusLabel = this.getStatusLabel(service.status);
                 const priorityLabel = this.getPriorityLabel(service.prioridade);
                 const date = service.data_servico ? new Date(service.data_servico).toLocaleDateString('pt-BR') : '-';
+
+                // Botões: Editar | Concluir (se pendente) | Gerar PDF
+                // Botão Excluir foi REMOVIDO conforme solicitado
                 let actionsHtml = '<div class="service-card-actions" onclick="event.stopPropagation()">';
                 actionsHtml += '<button class="btn btn-sm btn-secondary" onclick="Services.openEditModal(\'' + service.id + '\')">Editar</button>';
                 if (service.status === 'pending') {
                     actionsHtml += '<button class="btn btn-sm btn-primary" onclick="Services.completeService(\'' + service.id + '\')">Concluir</button>';
                 }
-                actionsHtml += '<button class="btn btn-sm btn-danger" onclick="Services.deleteService(\'' + service.id + '\')">Excluir</button></div>';
+                actionsHtml += '<button class="btn btn-sm btn-pdf" onclick="Services.gerarPdfServico(\'' + service.id + '\')" title="Gerar PDF deste serviço">'
+                    + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;">'
+                    + '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'
+                    + '<polyline points="7 10 12 15 17 10"/>'
+                    + '<line x1="12" y1="15" x2="12" y2="3"/>'
+                    + '</svg>'
+                    + ' PDF</button>';
+                actionsHtml += '</div>';
+
                 return '<div class="service-card" onclick="Services.viewService(\'' + service.id + '\')"><div class="service-card-header"><h4 class="service-title">' + Inventory.escapeHtml(service.titulo) + '</h4><span class="service-status-badge ' + service.status + '">' + statusLabel + '</span></div><div class="service-meta">' + (service.cliente_setor ? '<span>' + Inventory.escapeHtml(service.cliente_setor) + '</span>' : '') + '<span class="service-priority ' + service.prioridade + '">' + priorityLabel + '</span><span>' + date + '</span></div><p class="service-description">' + Inventory.escapeHtml(service.descricao) + '</p>' + actionsHtml + '</div>';
             }).join('');
         }
@@ -1027,7 +1120,7 @@ const Reports = {
         this.renderPedidoList();
     },
 
- //gerar pdf
+    // ---- PDF GENERATION ----
 
     async _buildPdfHeader(brasao) {
         let headerHtml = '<div style="text-align:center;margin-bottom:24px;border-bottom:2px solid #1a2744;padding-bottom:16px;">';
@@ -1047,11 +1140,11 @@ const Reports = {
                 <div style="flex:1;min-width:180px;text-align:center;">
                     <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Assinatura do Responsável</div>
                 </div>
-                <div style="flex:1;min-width:130px;text-align:center;">
-                    <div style="margin-top:40px;font-size:12px;color:#333;">Data: ___/___/______</div>
-                </div>
                 <div style="flex:1;min-width:180px;text-align:center;">
-                    <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Assinatura do destinatário</div>
+                    <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Assinatura de Recebido por</div>
+                </div>
+                <div style="flex:1;min-width:130px;text-align:center;">
+                    <div style="padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Data: ___/___/______</div>
                 </div>
             </div>
         </div>`;
@@ -1074,8 +1167,11 @@ const Reports = {
             });
 
             let tableRows = '';
-            categorias.forEach(cat => {
+            categorias.forEach((cat, catIndex) => {
                 if (grouped[cat].length === 0) return;
+                if (catIndex > 0 && tableRows !== '') {
+                    tableRows += `<tr><td colspan="2" style="padding:6px 0;background:transparent;border:none;"></td></tr>`;
+                }
                 tableRows += `<tr><td colspan="2" style="background:#1a2744;color:#fff;font-weight:700;font-size:13px;padding:8px 12px;letter-spacing:0.5px;">${catLabels[cat]}</td></tr>`;
                 grouped[cat].forEach((item, i) => {
                     const bg = i % 2 === 0 ? '#f9fafb' : '#fff';
@@ -1093,11 +1189,8 @@ const Reports = {
             </div>
             <table>
                 <thead><tr><th>Nome do Item</th><th style="text-align:center;">Quantidade</th></tr></thead>
-                <br>
-                <tbody>${tableRows}<br><br></tbody>
-                
+                <tbody>${tableRows}</tbody>
             </table>
-            
             ${this._buildPdfFooter()}
             </body></html>`;
 
