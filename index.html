@@ -13,18 +13,6 @@
     
     <!-- Tela de Login -->
     <div class="login-screen" id="loginScreen">
-        <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-
-    <div class="sidebar-character">
-    <lottie-player 
-        src="SEU_JSON_AQUI"
-        background="transparent"
-        speed="1"
-        style="width: 140px; height: 140px;"
-        loop
-        autoplay>
-    </lottie-player>
-    </div>
         <div class="login-container">
             <div class="login-header">
                 <svg class="login-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -130,13 +118,16 @@
                     <span>Relatórios</span>
                 </a>
 
-                <div class="sidebar-character">
-                    <div class="avatar">
-                        <div class="head"></div>
-                        <div class="body"></div>
-                        <div class="laptop"></div>
-                    </div>
-                </div>
+                <aside class="sidenavbar">
+                    <lottie-player 
+                      src="loginani.json"
+                      background="transparent"
+                      speed="1"
+                      loop
+                      autoplay
+                      class="bg-animation">
+                    </lottie-player>
+                </aside>
 
             </nav>
             
