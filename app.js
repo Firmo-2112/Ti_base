@@ -1217,15 +1217,18 @@ const Reports = {
             let tableRows = services.map((s, i) => {
                 const bg = i % 2 === 0 ? '#f9fafb' : '#fff';
                 const date = s.data_servico ? new Date(s.data_servico).toLocaleDateString('pt-BR') : '-';
+                const statusLabel = s.status === 'pending' ? 'Pendente' : 'Concluído';
+                const statusColor = s.status === 'pending' ? '#d97706' : '#059669';
                 return `<tr style="background:${bg}">
                     <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;font-weight:600;">${Inventory.escapeHtml(s.titulo)}</td>
                     <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;">${Inventory.escapeHtml(s.cliente_setor||'-')}</td>
                     <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;white-space:nowrap;">${date}</td>
+                    <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;"><span style="color:${statusColor};font-weight:700;">${statusLabel}</span></td>
                     <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;">${Inventory.escapeHtml(s.descricao||'')}</td>
                 </tr>`;
             }).join('');
 
-            if (!tableRows) tableRows = '<tr><td colspan="4" style="text-align:center;padding:20px;color:#999;font-size:13px;">Nenhum serviço encontrado</td></tr>';
+            if (!tableRows) tableRows = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#999;font-size:13px;">Nenhum serviço encontrado</td></tr>';
 
             const headerHtml = await this._buildPdfHeader(brasao);
             const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:40px;color:#222;}table{width:100%;border-collapse:collapse;}th{background:#1a2744;color:#fff;padding:10px 10px;font-size:12px;text-align:left;}</style></head><body>
@@ -1235,7 +1238,7 @@ const Reports = {
                 <span style="font-size:11px;color:#777;">Emitido em: ${today}</span>
             </div>
             <table>
-                <thead><tr><th>Título</th><th>Setor/Cliente</th><th>Data</th><th>Descrição</th></tr></thead>
+                <thead><tr><th>Título</th><th>Setor/Cliente</th><th>Data</th><th style="width:90px;">Status</th><th>Descrição</th></tr></thead>
                 <tbody>${tableRows}</tbody>
             </table>
             ${this._buildPdfFooter()}
