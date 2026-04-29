@@ -2144,13 +2144,17 @@ body::after {
   0%, 95%, 100% { transform: scaleY(1); }
   97% { transform: scaleY(0.1); }
 }
-/* Botão PDF nos cards de serviço */
+/* ==========================================
+   BOTÃO PDF NOS CARDS DE SERVIÇO
+   ========================================== */
 .btn-pdf {
     background: var(--bg-elevated);
     color: var(--warning);
     border: 1px solid rgba(245, 158, 11, 0.35);
     font-weight: 600;
     gap: 0.35rem;
+    display: inline-flex;
+    align-items: center;
 }
 
 .btn-pdf:hover {
@@ -2159,4 +2163,18 @@ body::after {
     color: var(--warning);
     transform: translateY(-1px);
     box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+}
+
+/* Tag de especificações no item do pedido */
+.pedido-item-espec {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.15rem 0.5rem;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

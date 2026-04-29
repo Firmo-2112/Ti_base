@@ -717,7 +717,7 @@ const Snippets = {
             const categoryLabels = { sistema: 'Sistema', impressora: 'Impressora', rede: 'Rede' };
             grid.innerHTML = snippets.map(snippet => {
                 const tags = snippet.tags ? snippet.tags.split(',').map(t => '<span class="snippet-tag">' + t.trim() + '</span>').join('') : '';
-                return '<div class="snippet-card" onclick="Snippets.viewSnippet(\'' + snippet.id + '\')"><div class="snippet-card-header"><h4 class="snippet-title">' + Inventory.escapeHtml(snippet.titulo) + '</h4><span class="snippet-type-badge ' + snippet.tipo + '">' + snippet.tipo.toUpperCase() + '</span></div><p class="snippet-description">' + Inventory.escapeHtml(snippet.descricao || '') + '</p><div class="snippet-tags"><span class="snippet-tag">' + (categoryLabels[snippet.categoria] || snippet.categoria) + '</span>' + tags + '</div><pre class="snippet-preview">' + Inventory.escapeHtml((snippet.codigo || '').substring(0, 100)) + '</pre><div class="snippet-actions" onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary btn-icon" onclick="Snippets.openEditModal(\'' + snippet.id + '\')" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="btn btn-sm btn-danger btn-icon" onclick="Snippets.deleteSnippet(\'' + snippet.id + '\')" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></div>';
+                return '<div class="snippet-card" onclick="Snippets.viewSnippet(\'' + snippet.id + '\')"><div class="snippet-card-header"><h4 class="snippet-title">' + Inventory.escapeHtml(snippet.titulo) + '</h4><span class="snippet-type-badge ' + snippet.tipo + '">' + snippet.tipo.toUpperCase() + '</span></div><p class="snippet-description">' + Inventory.escapeHtml(snippet.descricao || '') + '</p><div class="snippet-tags"><span class="snippet-tag">' + (categoryLabels[snippet.categoria] || snippet.categoria) + '</span>' + tags + '</div><pre class="snippet-preview">' + Inventory.escapeHtml((snippet.codigo || '').substring(0, 100)) + '</pre></div>';
             }).join('');
         }
     }
@@ -823,6 +823,21 @@ const Services = {
         }
     },
 
+    deleteService(id) {
+        const service = AppState.services.find(s => String(s.id) === String(id));
+        if (!service) return;
+        Modal.confirm('Excluir Serviço', 'Tem certeza que deseja excluir "' + service.titulo + '"?', async () => {
+            try {
+                await API.delete('/api/servicos/' + id);
+                Toast.show('Serviço excluído com sucesso!', 'success');
+                await this.render();
+                await Dashboard.update();
+            } catch (e) {
+                Toast.show('Erro ao excluir serviço!', 'error');
+            }
+        });
+    },
+
     getStatusLabel(status) { return status === 'pending' ? 'Pendente' : 'Concluído'; },
 
     getPriorityLabel(priority) {
@@ -835,19 +850,16 @@ const Services = {
     // ==========================================
     async gerarPdfServico(id) {
         const service = AppState.services.find(s => String(s.id) === String(id));
-        if (!service) return;
-
+        if (!service) { Toast.show('Serviço não encontrado!', 'error'); return; }
         try {
             const brasao = await Reports.loadBrasao();
             const today = new Date().toLocaleDateString('pt-BR');
             const date = service.data_servico ? new Date(service.data_servico).toLocaleDateString('pt-BR') : '-';
-
             const statusLabel = service.status === 'pending' ? 'Pendente' : 'Concluído';
             const statusColor = service.status === 'pending' ? '#d97706' : '#059669';
             const priorityLabels = { baixa: 'Baixa', media: 'Média', alta: 'Alta', urgente: 'Urgente' };
             const priorityColors = { baixa: '#059669', media: '#0ea5e9', alta: '#d97706', urgente: '#dc2626' };
             const prioridade = service.prioridade || 'media';
-
             const headerHtml = await Reports._buildPdfHeader(brasao);
 
             const html = `<!DOCTYPE html>
@@ -858,51 +870,39 @@ const Services = {
         body { font-family: Arial, sans-serif; margin: 40px; color: #222; }
         table { width: 100%; border-collapse: collapse; }
         th { background: #1a2744; color: #fff; padding: 10px 12px; font-size: 13px; text-align: left; }
-        td { padding: 9px 12px; border-bottom: 1px solid #e5e7eb; font-size: 13px; }
-        .section-title {
-            background: #1a2744;
-            color: #fff;
-            font-weight: 700;
-            font-size: 13px;
-            padding: 8px 12px;
-            letter-spacing: 0.5px;
-            margin-top: 20px;
-        }
-        .text-block {
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            padding: 14px 16px;
-            font-size: 13px;
-            line-height: 1.7;
-            white-space: pre-wrap;
-            word-break: break-word;
-            margin-top: 0;
-            color: #333;
-        }
+        td { padding: 9px 12px; border-bottom: 1px solid #e5e7eb; font-size: 13px; vertical-align: top; }
+        .sec-title { background: #1a2744; color: #fff; font-weight: 700; font-size: 12px;
+                     padding: 7px 12px; letter-spacing: 0.5px; margin-top: 18px; }
+        .text-block { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px;
+                      padding: 12px 14px; font-size: 13px; line-height: 1.75; white-space: pre-wrap;
+                      word-break: break-word; color: #333; margin: 0; }
+        .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px;
+               color: #888; display: block; margin-bottom: 2px; }
+        .val { font-size: 13px; color: #222; font-weight: 600; }
     </style>
 </head>
 <body>
     ${headerHtml}
 
-    <div style="display:flex;justify-content:space-between;margin-bottom:16px;align-items:flex-end;">
+    <div style="display:flex;justify-content:space-between;margin-bottom:18px;align-items:flex-end;">
         <h2 style="margin:0;font-size:16px;color:#1a2744;">Relatório de Serviço</h2>
         <span style="font-size:11px;color:#777;">Emitido em: ${today}</span>
     </div>
 
+    <!-- Tabela de metadados -->
     <table>
         <thead>
             <tr>
-                <th>Título</th>
-                <th>Setor/Cliente</th>
-                <th>Data</th>
-                <th>Status</th>
-                <th>Prioridade</th>
+                <th>Título do Serviço</th>
+                <th style="width:140px;">Setor / Cliente</th>
+                <th style="width:100px;">Data</th>
+                <th style="width:100px;">Status</th>
+                <th style="width:90px;">Prioridade</th>
             </tr>
         </thead>
         <tbody>
             <tr style="background:#f9fafb;">
-                <td style="font-weight:600;">${Inventory.escapeHtml(service.titulo)}</td>
+                <td style="font-weight:700;font-size:14px;">${Inventory.escapeHtml(service.titulo)}</td>
                 <td>${Inventory.escapeHtml(service.cliente_setor || '-')}</td>
                 <td style="white-space:nowrap;">${date}</td>
                 <td><span style="color:${statusColor};font-weight:700;">${statusLabel}</span></td>
@@ -911,17 +911,19 @@ const Services = {
         </tbody>
     </table>
 
-    <div class="section-title">Descrição do Serviço</div>
+    <!-- Descrição -->
+    <div class="sec-title">Descrição do Serviço</div>
     <div class="text-block">${Inventory.escapeHtml(service.descricao || 'Nenhuma descrição registrada.')}</div>
 
-    <div class="section-title">Relatório de Atividades</div>
+    <!-- Relatório -->
+    <div class="sec-title">Relatório de Atividades Realizadas</div>
     <div class="text-block">${Inventory.escapeHtml(service.relatorio || 'Nenhum relatório registrado.')}</div>
 
     ${Reports._buildPdfFooter()}
 </body>
 </html>`;
 
-            Reports._printHtml(html, 'Servico_' + service.titulo.replace(/\s+/g, '_').substring(0, 30));
+            Reports._printHtml(html, 'Servico_' + (service.titulo || 'sem_titulo').replace(/\s+/g, '_').substring(0, 40));
         } catch (e) {
             Toast.show('Erro ao gerar PDF do serviço!', 'error');
         }
@@ -957,23 +959,19 @@ const Services = {
                 const statusLabel = this.getStatusLabel(service.status);
                 const priorityLabel = this.getPriorityLabel(service.prioridade);
                 const date = service.data_servico ? new Date(service.data_servico).toLocaleDateString('pt-BR') : '-';
-
-                // Botões: Editar | Concluir (se pendente) | Gerar PDF
-                // Botão Excluir foi REMOVIDO conforme solicitado
+                // Botão Excluir REMOVIDO — apenas Editar, Concluir e Gerar PDF
                 let actionsHtml = '<div class="service-card-actions" onclick="event.stopPropagation()">';
                 actionsHtml += '<button class="btn btn-sm btn-secondary" onclick="Services.openEditModal(\'' + service.id + '\')">Editar</button>';
                 if (service.status === 'pending') {
                     actionsHtml += '<button class="btn btn-sm btn-primary" onclick="Services.completeService(\'' + service.id + '\')">Concluir</button>';
                 }
                 actionsHtml += '<button class="btn btn-sm btn-pdf" onclick="Services.gerarPdfServico(\'' + service.id + '\')" title="Gerar PDF deste serviço">'
-                    + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;">'
+                    + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;margin-right:3px;">'
                     + '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'
                     + '<polyline points="7 10 12 15 17 10"/>'
                     + '<line x1="12" y1="15" x2="12" y2="3"/>'
-                    + '</svg>'
-                    + ' PDF</button>';
+                    + '</svg>PDF</button>';
                 actionsHtml += '</div>';
-
                 return '<div class="service-card" onclick="Services.viewService(\'' + service.id + '\')"><div class="service-card-header"><h4 class="service-title">' + Inventory.escapeHtml(service.titulo) + '</h4><span class="service-status-badge ' + service.status + '">' + statusLabel + '</span></div><div class="service-meta">' + (service.cliente_setor ? '<span>' + Inventory.escapeHtml(service.cliente_setor) + '</span>' : '') + '<span class="service-priority ' + service.prioridade + '">' + priorityLabel + '</span><span>' + date + '</span></div><p class="service-description">' + Inventory.escapeHtml(service.descricao) + '</p>' + actionsHtml + '</div>';
             }).join('');
         }
@@ -1047,11 +1045,13 @@ const Reports = {
         const nome = document.getElementById('pedidoNome').value.trim();
         const qtd = parseInt(document.getElementById('pedidoQtd').value) || 1;
         const nivel = document.getElementById('pedidoNivel').value;
+        const espec = document.getElementById('pedidoEspec').value.trim();
         if (!nome) { Toast.show('Informe o nome do produto!', 'error'); return; }
-        this.pedidoItems.push({ id: Date.now(), nome, qtd, nivel });
+        this.pedidoItems.push({ id: Date.now(), nome, qtd, nivel, espec });
         document.getElementById('pedidoNome').value = '';
         document.getElementById('pedidoQtd').value = '1';
         document.getElementById('pedidoNivel').value = 'Média';
+        document.getElementById('pedidoEspec').value = '';
         this.renderPedidoList();
     },
 
@@ -1074,6 +1074,7 @@ const Reports = {
                         <span class="pedido-item-name">${Inventory.escapeHtml(item.nome)}</span>
                         <span class="pedido-item-qty">Qtd: ${item.qtd}</span>
                         <span class="pedido-item-nivel ${item.nivel}">${item.nivel}</span>
+                        ${item.espec ? `<span class="pedido-item-espec" title="Especificações">${Inventory.escapeHtml(item.espec)}</span>` : ''}
                         <div class="pedido-item-actions" style="margin-left:auto">
                             <button class="btn btn-sm btn-secondary" onclick="Reports.editarItem(${item.id})">Editar</button>
                             <button class="btn btn-sm btn-danger" onclick="Reports.excluirItem(${item.id})">Excluir</button>
@@ -1085,6 +1086,7 @@ const Reports = {
                         <select id="edit-nivel-${item.id}">
                             ${['Baixa','Média','Alta','Urgente'].map(n => `<option value="${n}"${n===item.nivel?' selected':''}>${n}</option>`).join('')}
                         </select>
+                        <input type="text" value="${Inventory.escapeHtml(item.espec||'')}" id="edit-espec-${item.id}" placeholder="Especificações" style="flex:1;min-width:120px">
                         <button class="btn btn-sm btn-primary" onclick="Reports.salvarEdicao(${item.id})">Salvar</button>
                         <button class="btn btn-sm btn-secondary" onclick="Reports.cancelarEdicao(${item.id})">Cancelar</button>
                     </div>
@@ -1110,8 +1112,9 @@ const Reports = {
         const nome = document.getElementById('edit-nome-' + id).value.trim();
         const qtd = parseInt(document.getElementById('edit-qtd-' + id).value) || 1;
         const nivel = document.getElementById('edit-nivel-' + id).value;
+        const espec = document.getElementById('edit-espec-' + id).value.trim();
         if (!nome) { Toast.show('Nome não pode ser vazio!', 'error'); return; }
-        item.nome = nome; item.qtd = qtd; item.nivel = nivel;
+        item.nome = nome; item.qtd = qtd; item.nivel = nivel; item.espec = espec;
         this.renderPedidoList();
     },
 
@@ -1257,6 +1260,7 @@ const Reports = {
             return `<tr style="background:${bg}">
                 <td style="padding:9px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;">${i+1}</td>
                 <td style="padding:9px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:600;">${Inventory.escapeHtml(item.nome)}</td>
+                <td style="padding:9px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#555;">${Inventory.escapeHtml(item.espec||'-')}</td>
                 <td style="padding:9px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;text-align:center;">${item.qtd}</td>
                 <td style="padding:9px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;text-align:center;"><span style="color:${cor};font-weight:700;">${item.nivel}</span></td>
             </tr>`;
@@ -1270,7 +1274,7 @@ const Reports = {
             <span style="font-size:11px;color:#777;">Emitido em: ${today}</span>
         </div>
         <table>
-            <thead><tr><th style="width:40px;">#</th><th>Nome do Produto</th><th style="width:100px;text-align:center;">Quantidade</th><th style="width:130px;text-align:center;">Nível de Necessidade</th></tr></thead>
+            <thead><tr><th style="width:40px;">#</th><th>Nome do Produto</th><th>Especificações</th><th style="width:100px;text-align:center;">Quantidade</th><th style="width:130px;text-align:center;">Nível de Necessidade</th></tr></thead>
             <tbody>${tableRows}</tbody>
         </table>
         ${this._buildPdfFooter()}

@@ -10,10 +10,21 @@
 
 <body>
     <canvas id="matrix"></canvas>
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     
     <!-- Tela de Login -->
     <div class="login-screen" id="loginScreen">
+        <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+    <div class="sidebar-character">
+    <lottie-player 
+        src="SEU_JSON_AQUI"
+        background="transparent"
+        speed="1"
+        style="width: 140px; height: 140px;"
+        loop
+        autoplay>
+    </lottie-player>
+    </div>
         <div class="login-container">
             <div class="login-header">
                 <svg class="login-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -118,18 +129,15 @@
                     </svg>
                     <span>Relatórios</span>
                 </a>
-                <br><br><br><br>
-                <a>
-                    <lottie-player 
-                        src="loginani.json"
-                        background="transparent"
-                        speed="1"
-                        position="relative"
-                        style="width: 240px; height: 240px;"
-                        loop
-                        autoplay>
-                    </lottie-player>
-                </a>
+
+                <div class="sidebar-character">
+                    <div class="avatar">
+                        <div class="head"></div>
+                        <div class="body"></div>
+                        <div class="laptop"></div>
+                    </div>
+                </div>
+
             </nav>
             
             <div class="sidebar-footer">
@@ -569,6 +577,10 @@
                                         <option value="Urgente">Urgente</option>
                                     </select>
                                 </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Especificações do Produto</label>
+                                <input type="text" id="pedidoEspec" placeholder="Ex: Dell Inspiron 15, 8GB RAM, SSD 256GB">
                             </div>
                             <button class="btn btn-primary" id="btnAdicionarPedido">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
