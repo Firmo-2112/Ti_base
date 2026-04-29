@@ -2113,23 +2113,5 @@ body::after {
     white-space: nowrap;
 }
 
-/* Sidebar */
-.sidebar {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-/* Animação como fundo */
-.bg-animation {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 140px;
-  opacity: 0.4; /* importante pra não poluir */
-  z-index: 1;
-}
 
 
