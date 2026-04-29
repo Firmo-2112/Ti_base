@@ -854,7 +854,8 @@ const Services = {
         try {
             const brasao = await Reports.loadBrasao();
             const today = new Date().toLocaleDateString('pt-BR');
-            const date = service.data_servico ? new Date(service.data_servico).toLocaleDateString('pt-BR') : '-';
+            const dataSolic = service.data_servico   ? new Date(service.data_servico).toLocaleDateString('pt-BR')   : '-';
+            const dataConc  = service.data_conclusao ? new Date(service.data_conclusao).toLocaleDateString('pt-BR') : '-';
             const statusLabel = service.status === 'pending' ? 'Pendente' : 'Concluído';
             const statusColor = service.status === 'pending' ? '#d97706' : '#059669';
             const priorityLabels = { baixa: 'Baixa', media: 'Média', alta: 'Alta', urgente: 'Urgente' };
@@ -894,9 +895,10 @@ const Services = {
         <thead>
             <tr>
                 <th>Título do Serviço</th>
-                <th style="width:140px;">Setor / Cliente</th>
-                <th style="width:100px;">Data</th>
-                <th style="width:100px;">Status</th>
+                <th style="width:130px;">Setor / Cliente</th>
+                <th style="width:110px;">Data de Solicitação</th>
+                <th style="width:110px;">Data de Conclusão</th>
+                <th style="width:90px;">Status</th>
                 <th style="width:90px;">Prioridade</th>
             </tr>
         </thead>
@@ -904,7 +906,8 @@ const Services = {
             <tr style="background:#f9fafb;">
                 <td style="font-weight:700;font-size:14px;">${Inventory.escapeHtml(service.titulo)}</td>
                 <td>${Inventory.escapeHtml(service.cliente_setor || '-')}</td>
-                <td style="white-space:nowrap;">${date}</td>
+                <td style="white-space:nowrap;">${dataSolic}</td>
+                <td style="white-space:nowrap;">${dataConc}</td>
                 <td><span style="color:${statusColor};font-weight:700;">${statusLabel}</span></td>
                 <td><span style="color:${priorityColors[prioridade]};font-weight:700;">${priorityLabels[prioridade] || prioridade}</span></td>
             </tr>
@@ -1216,19 +1219,21 @@ const Reports = {
 
             let tableRows = services.map((s, i) => {
                 const bg = i % 2 === 0 ? '#f9fafb' : '#fff';
-                const date = s.data_servico ? new Date(s.data_servico).toLocaleDateString('pt-BR') : '-';
+                const dataSolic = s.data_servico ? new Date(s.data_servico).toLocaleDateString('pt-BR') : '-';
+                const dataConc  = s.data_conclusao ? new Date(s.data_conclusao).toLocaleDateString('pt-BR') : '-';
                 const statusLabel = s.status === 'pending' ? 'Pendente' : 'Concluído';
                 const statusColor = s.status === 'pending' ? '#d97706' : '#059669';
                 return `<tr style="background:${bg}">
                     <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;font-weight:600;">${Inventory.escapeHtml(s.titulo)}</td>
                     <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;">${Inventory.escapeHtml(s.cliente_setor||'-')}</td>
-                    <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;white-space:nowrap;">${date}</td>
+                    <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;white-space:nowrap;">${dataSolic}</td>
+                    <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;white-space:nowrap;">${dataConc}</td>
                     <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;"><span style="color:${statusColor};font-weight:700;">${statusLabel}</span></td>
                     <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;">${Inventory.escapeHtml(s.descricao||'')}</td>
                 </tr>`;
             }).join('');
 
-            if (!tableRows) tableRows = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#999;font-size:13px;">Nenhum serviço encontrado</td></tr>';
+            if (!tableRows) tableRows = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#999;font-size:13px;">Nenhum serviço encontrado</td></tr>';
 
             const headerHtml = await this._buildPdfHeader(brasao);
             const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:40px;color:#222;}table{width:100%;border-collapse:collapse;}th{background:#1a2744;color:#fff;padding:10px 10px;font-size:12px;text-align:left;}</style></head><body>
@@ -1238,7 +1243,7 @@ const Reports = {
                 <span style="font-size:11px;color:#777;">Emitido em: ${today}</span>
             </div>
             <table>
-                <thead><tr><th>Título</th><th>Setor/Cliente</th><th>Data</th><th style="width:90px;">Status</th><th>Descrição</th></tr></thead>
+                <thead><tr><th>Título</th><th>Setor/Cliente</th><th style="width:110px;">Data de Solicitação</th><th style="width:110px;">Data de Conclusão</th><th style="width:90px;">Status</th><th>Descrição</th></tr></thead>
                 <tbody>${tableRows}</tbody>
             </table>
             ${this._buildPdfFooter()}
