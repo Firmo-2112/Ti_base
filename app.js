@@ -367,8 +367,12 @@ const ActivityLogger = {
             container.innerHTML = activities.map(a => {
                 const time = this.formatTime(a.data_atividade);
                 const icon = icons[a.acao] || icons.add;
-                const userTag = a.usuario_nome ? '<span class="activity-user">por ' + a.usuario_nome + '</span>' : '';
-                return '<div class="activity-item"><div class="activity-icon ' + a.acao + '">' + icon + '</div><div class="activity-content"><span class="activity-text">' + a.detalhes + '</span><span class="activity-time">' + time + ' ' + userTag + '</span></div></div>';
+                const acaoLabels = { add:'Adicionou', edit:'Editou', delete:'Excluiu', complete:'Concluiu' };
+                const acaoLabel = acaoLabels[a.acao] || a.acao;
+                const userLine = a.usuario_nome
+                    ? '<span class="activity-user-line"><span class="activity-action-verb ' + a.acao + '">' + acaoLabel + '</span> <strong>' + a.usuario_nome + '</strong></span>'
+                    : '';
+                return '<div class="activity-item"><div class="activity-icon ' + a.acao + '">' + icon + '</div><div class="activity-content"><span class="activity-text">' + a.detalhes + '</span>' + userLine + '<span class="activity-time">' + time + '</span></div></div>';
             }).join('');
         } catch (e) { console.error('ActivityLogger.renderInventory error:', e); container.innerHTML = '<p style="color: var(--text-muted)">Erro ao carregar atividades</p>'; }
     },
@@ -409,7 +413,12 @@ const ActivityLogger = {
                         + '<div class="snap-row full"><span class="snap-lbl">Relatório</span><span>' + (snap.relatorio||'-') + '</span></div>'
                         + '</div>';
                 }
-                return '<div class="activity-item"><div class="activity-icon ' + a.acao + '">' + icon + '</div><div class="activity-content"><span class="activity-text">' + a.detalhes + '</span><span class="activity-time">' + time + ' ' + userTag + '</span>' + snapshotBtn + '</div></div>';
+                const acaoLabelsSvc = { add:'Adicionou', edit:'Editou', delete:'Excluiu', complete:'Concluiu' };
+                const acaoLabelSvc = acaoLabelsSvc[a.acao] || a.acao;
+                const userLineSvc = a.usuario_nome
+                    ? '<span class="activity-user-line"><span class="activity-action-verb ' + a.acao + '">' + acaoLabelSvc + '</span> <strong>' + a.usuario_nome + '</strong></span>'
+                    : '';
+                return '<div class="activity-item"><div class="activity-icon ' + a.acao + '">' + icon + '</div><div class="activity-content"><span class="activity-text">' + a.detalhes + '</span>' + userLineSvc + '<span class="activity-time">' + time + '</span>' + snapshotBtn + '</div></div>';
             }).join('');
         } catch (e) { console.error('ActivityLogger.renderServices error:', e); container.innerHTML = '<p style="color: var(--text-muted)">Erro ao carregar atividades</p>'; }
     },

@@ -2503,3 +2503,36 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+/* ==========================================
+   ACTIVITY — user action line (who did what)
+   ========================================== */
+.activity-user-line {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 3px;
+    margin-bottom: 2px;
+    font-size: 0.75rem;
+    color: var(--text-primary);
+}
+
+.activity-user-line strong {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.activity-action-verb {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.activity-action-verb.add      { background: var(--success-dim);  color: var(--success); }
+.activity-action-verb.edit     { background: var(--primary-dim);  color: var(--primary); }
+.activity-action-verb.delete   { background: var(--danger-dim);   color: var(--danger);  }
+.activity-action-verb.complete { background: var(--accent-dim);   color: #a78bfa;        }

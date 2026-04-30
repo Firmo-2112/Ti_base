@@ -79,10 +79,24 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/dashboard', requireAuth, async (req, res) => {
     try {
         const [summary]         = await pool.execute('SELECT * FROM dashboard_resumo');
-        const [recentInventory] = await pool.execute(
-            'SELECT * FROM atividades WHERE tipo = ? ORDER BY data_atividade DESC LIMIT 10', ['inventory']);
-        const [recentServices]  = await pool.execute(
-            'SELECT * FROM atividades WHERE tipo = ? ORDER BY data_atividade DESC LIMIT 10', ['services']);
+        // Explicit columns — graceful fallback if new cols not yet migrated
+        let recentInventory = [], recentServices = [];
+        const COLS = 'id, tipo, acao, detalhes, data_atividade, usuario_nome, usuario_id, snapshot';
+        const BASE = 'id, tipo, acao, detalhes, data_atividade';
+        try {
+            [recentInventory] = await pool.execute(
+                `SELECT ${COLS} FROM atividades WHERE tipo = ? ORDER BY data_atividade DESC LIMIT 10`, ['inventory']);
+        } catch(e1) {
+            [recentInventory] = await pool.execute(
+                `SELECT ${BASE} FROM atividades WHERE tipo = ? ORDER BY data_atividade DESC LIMIT 10`, ['inventory']);
+        }
+        try {
+            [recentServices] = await pool.execute(
+                `SELECT ${COLS} FROM atividades WHERE tipo = ? ORDER BY data_atividade DESC LIMIT 10`, ['services']);
+        } catch(e2) {
+            [recentServices] = await pool.execute(
+                `SELECT ${BASE} FROM atividades WHERE tipo = ? ORDER BY data_atividade DESC LIMIT 10`, ['services']);
+        }
         recentServices.forEach(a => {
             if (a.snapshot && typeof a.snapshot === 'string') {
                 try { a.snapshot = JSON.parse(a.snapshot); } catch(e) { a.snapshot = null; }
@@ -339,14 +353,21 @@ app.use(express.static(path.join(__dirname)));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', async () => {
-    console.log('Setor de TI rodando na porta ' + PORT);
+
+// Migrate FIRST, then start server — ensures columns exist before any request
+async function startServer() {
     try {
         const conn = await pool.getConnection();
         console.log('Conectado ao MySQL (Railway)');
         conn.release();
         await runMigrations();
     } catch (err) {
-        console.error('Banco indisponível:', err.message);
+        console.error('Banco indisponível no boot:', err.message);
+        // Start anyway — health check must respond
     }
-});
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log('Setor de TI rodando na porta ' + PORT);
+    });
+}
+
+startServer();
