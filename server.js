@@ -34,22 +34,65 @@ const dbConfig = {
 
 const pool = mysql.createPool(dbConfig);
 
+async function columnExists(table, column) {
+    try {
+        const [rows] = await pool.execute(
+            `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+            [table, column]
+        );
+        return rows.length > 0;
+    } catch(e) { return false; }
+}
+
 async function runMigrations() {
-    const cols = [
-        `ALTER TABLE atividades ADD COLUMN IF NOT EXISTS usuario_id    INT          DEFAULT NULL`,
-        `ALTER TABLE atividades ADD COLUMN IF NOT EXISTS usuario_nome  VARCHAR(100) DEFAULT NULL`,
-        `ALTER TABLE atividades ADD COLUMN IF NOT EXISTS snapshot      JSON         DEFAULT NULL`,
-        `ALTER TABLE servicos   ADD COLUMN IF NOT EXISTS criado_por    VARCHAR(100) DEFAULT NULL`,
-        `ALTER TABLE servicos   ADD COLUMN IF NOT EXISTS modificado_por VARCHAR(100) DEFAULT NULL`,
-        `ALTER TABLE servicos   ADD COLUMN IF NOT EXISTS usuario_id    INT          DEFAULT NULL`,
+    const toAdd = [
+        { table: 'atividades', col: 'usuario_id',    def: 'INT DEFAULT NULL' },
+        { table: 'atividades', col: 'usuario_nome',  def: 'VARCHAR(100) DEFAULT NULL' },
+        { table: 'atividades', col: 'snapshot',      def: 'JSON DEFAULT NULL' },
+        { table: 'servicos',   col: 'criado_por',    def: 'VARCHAR(100) DEFAULT NULL' },
+        { table: 'servicos',   col: 'modificado_por',def: 'VARCHAR(100) DEFAULT NULL' },
+        { table: 'servicos',   col: 'usuario_id',    def: 'INT DEFAULT NULL' },
     ];
-    for (const sql of cols) {
-        try { await pool.execute(sql); } catch (e) {}
+    let applied = 0;
+    for (const { table, col, def } of toAdd) {
+        try {
+            const exists = await columnExists(table, col);
+            if (!exists) {
+                await pool.execute(`ALTER TABLE ${table} ADD COLUMN ${col} ${def}`);
+                console.log(`  + Added ${table}.${col}`);
+                applied++;
+            }
+        } catch (e) {
+            console.error(`  ! Failed ${table}.${col}:`, e.message);
+        }
     }
-    console.log('Migrações aplicadas.');
+    console.log(`Migrações: ${applied} coluna(s) adicionada(s).`);
+    return applied;
 }
 
 app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
+
+// Debug endpoint — shows what headers server receives
+app.get('/api/debug', requireAuth, async (req, res) => {
+    res.json({
+        user_nome_header: req.headers['x-user-nome'] || null,
+        user_id_header:   req.headers['x-user-id']   || null,
+        decoded_nome:     req.headers['x-user-nome'] ? decodeURIComponent(req.headers['x-user-nome']) : null,
+        server_version:   'v2-with-user-tracking'
+    });
+});
+
+// Manual migration trigger — call from browser: GET /api/migrate?token=setor-ti-authenticated
+app.get('/api/migrate', async (req, res) => {
+    if (req.query.token !== 'setor-ti-authenticated' && req.headers['x-auth-token'] !== 'setor-ti-authenticated')
+        return res.status(401).json({ error: 'Unauthorized' });
+    try {
+        const applied = await runMigrations();
+        res.json({ success: true, message: `Migração concluída. ${applied} coluna(s) adicionada(s).` });
+    } catch(e) {
+        res.status(500).json({ error: e.message });
+    }
+});
 
 function requireAuth(req, res, next) {
     if (req.headers['x-auth-token'] === 'setor-ti-authenticated') return next();
