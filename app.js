@@ -65,6 +65,12 @@ const API = {
             h['x-user-id']   = String(AppState.currentUser.id || '');
             h['x-user-nome'] = encodeURIComponent(AppState.currentUser.nome || AppState.currentUser.usuario || '');
         }
+        // Debug: log user being sent (remove after confirming works)
+        if (AppState.currentUser) {
+            console.debug('[API] user header:', AppState.currentUser.nome || AppState.currentUser.usuario, '| id:', AppState.currentUser.id);
+        } else {
+            console.warn('[API] NO currentUser — headers will not include user info');
+        }
         return h;
     },
 
