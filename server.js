@@ -299,7 +299,12 @@ async function logActivity(tipo, acao, detalhes, usuarioNome, usuarioId, snapsho
             'INSERT INTO atividades (tipo,acao,detalhes,usuario_nome,usuario_id,snapshot) VALUES (?,?,?,?,?,?)',
             [tipo, acao, detalhes, usuarioNome||null, usuarioId||null, snapshot ? JSON.stringify(snapshot) : null]
         );
-    } catch (err) { console.error('Erro ao registrar atividade:', err); }
+    } catch(e2) {
+        await pool.execute(
+            'INSERT INTO atividades (tipo,acao,detalhes) VALUES (?,?,?)',
+            [tipo, acao, detalhes]
+        );
+    }
 }
 
 // --- ESTÁTICOS ---
