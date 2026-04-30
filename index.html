@@ -11,9 +11,10 @@
 <body>
     <canvas id="matrix"></canvas>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-
+    
     <!-- Tela de Login -->
     <div class="login-screen" id="loginScreen">
+        
         <div class="login-container">
             <div class="login-header">
                 <svg class="login-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -175,8 +176,17 @@
 
         <main class="main-content">
             <header class="mobile-header">
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <line x1="3" y1="12" x2="21" y2="12"/>
+                        <line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                </button>
                 <h1 class="mobile-title">Setor de TI</h1>
+                <div style="width:36px"></div>
             </header>
+            <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
             <section class="tab-content active" id="dashboard-tab">
                 <div class="content-header">
@@ -574,6 +584,14 @@
                                         <option value="Urgente">Urgente</option>
                                     </select>
                                 </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Especificações do Produto</label>
+                                <input type="text" id="pedidoEspec" placeholder="Ex: Dell Inspiron 15, 8GB RAM, SSD 256GB">
+                            </div>
+                            <div class="form-group">
+                                <label>Descrição do Produto</label>
+                                <textarea id="pedidoDesc" rows="2" placeholder="Descreva o motivo da solicitação ou detalhes adicionais..."></textarea>
                             </div>
                             <button class="btn btn-primary" id="btnAdicionarPedido">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

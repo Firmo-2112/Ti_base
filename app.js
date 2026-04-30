@@ -370,7 +370,7 @@ const ActivityLogger = {
                 const userTag = a.usuario_nome ? '<span class="activity-user">por ' + a.usuario_nome + '</span>' : '';
                 return '<div class="activity-item"><div class="activity-icon ' + a.acao + '">' + icon + '</div><div class="activity-content"><span class="activity-text">' + a.detalhes + '</span><span class="activity-time">' + time + ' ' + userTag + '</span></div></div>';
             }).join('');
-        } catch (e) { container.innerHTML = '<p style="color: var(--text-muted)">Erro ao carregar atividades</p>'; }
+        } catch (e) { console.error('ActivityLogger.renderInventory error:', e); container.innerHTML = '<p style="color: var(--text-muted)">Erro ao carregar atividades</p>'; }
     },
 
     async renderServices() {
@@ -411,7 +411,7 @@ const ActivityLogger = {
                 }
                 return '<div class="activity-item"><div class="activity-icon ' + a.acao + '">' + icon + '</div><div class="activity-content"><span class="activity-text">' + a.detalhes + '</span><span class="activity-time">' + time + ' ' + userTag + '</span>' + snapshotBtn + '</div></div>';
             }).join('');
-        } catch (e) { container.innerHTML = '<p style="color: var(--text-muted)">Erro ao carregar atividades</p>'; }
+        } catch (e) { console.error('ActivityLogger.renderServices error:', e); container.innerHTML = '<p style="color: var(--text-muted)">Erro ao carregar atividades</p>'; }
     },
 
     formatTime(timestamp) {
@@ -832,6 +832,15 @@ const Services = {
             authEl.innerHTML = authHtml;
             authEl.style.display = authHtml ? 'flex' : 'none';
         }
+        // Mostrar/ocultar botão Editar conforme ownership (loose equality)
+        const curIdView = AppState.currentUser && AppState.currentUser.id;
+        const isOwnerView = !service.usuario_id || String(service.usuario_id) === String(curIdView);
+        const editFromViewBtn = document.getElementById('editFromViewBtn');
+        if (editFromViewBtn) {
+            editFromViewBtn.style.display = isOwnerView ? 'inline-flex' : 'none';
+            const svcId = service.id;
+            editFromViewBtn.onclick = () => { Modal.close('viewServiceModal'); Services.openEditModal(svcId); };
+        }
         Modal.open('viewServiceModal');
     },
 
@@ -1026,7 +1035,8 @@ const Services = {
                 const date = service.data_servico ? new Date(service.data_servico).toLocaleDateString('pt-BR') : '-';
                 // Dono = sem usuario_id registrado (legado) OU mesmo id
                 const curId = AppState.currentUser && AppState.currentUser.id;
-                const isOwnerForActions = !service.usuario_id || service.usuario_id === curId;
+                // Use == (loose equality) — usuario_id may come as string or number
+                const isOwnerForActions = !service.usuario_id || String(service.usuario_id) === String(curId);
                 let actionsHtml = '<div class="service-card-actions" onclick="event.stopPropagation()">';
                 if (isOwnerForActions) {
                     actionsHtml += '<button class="btn btn-sm btn-secondary" onclick="Services.openEditModal(\'' + service.id + '\')">Editar</button>';
@@ -1106,23 +1116,34 @@ const Reports = {
     },
 
     _bindPedido() {
-        const btnAdd = document.getElementById('btnAdicionarPedido');
+        const btnAdd   = document.getElementById('btnAdicionarPedido');
         const btnGerar = document.getElementById('btnGerarPedido');
-        if (btnAdd) btnAdd.onclick = () => this.adicionarItemPedido();
+        if (btnAdd)   btnAdd.onclick   = () => this.adicionarItemPedido();
         if (btnGerar) btnGerar.onclick = () => this.gerarPedido();
+        // Enter key on nome field adds item
+        const nomeEl = document.getElementById('pedidoNome');
+        if (nomeEl) nomeEl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); this.adicionarItemPedido(); } });
     },
 
     adicionarItemPedido() {
-        const nome = document.getElementById('pedidoNome').value.trim();
-        const qtd = parseInt(document.getElementById('pedidoQtd').value) || 1;
-        const nivel = document.getElementById('pedidoNivel').value;
-        const espec = document.getElementById('pedidoEspec').value.trim();
+        const nomeEl  = document.getElementById('pedidoNome');
+        const qtdEl   = document.getElementById('pedidoQtd');
+        const nivelEl = document.getElementById('pedidoNivel');
+        const especEl = document.getElementById('pedidoEspec');
+        const descEl  = document.getElementById('pedidoDesc');
+        if (!nomeEl) { console.error('pedidoNome not found'); return; }
+        const nome  = nomeEl.value.trim();
+        const qtd   = parseInt(qtdEl ? qtdEl.value : '1') || 1;
+        const nivel = nivelEl ? nivelEl.value : 'Média';
+        const espec = especEl ? especEl.value.trim() : '';
+        const desc  = descEl  ? descEl.value.trim()  : '';
         if (!nome) { Toast.show('Informe o nome do produto!', 'error'); return; }
-        this.pedidoItems.push({ id: Date.now(), nome, qtd, nivel, espec });
-        document.getElementById('pedidoNome').value = '';
-        document.getElementById('pedidoQtd').value = '1';
-        document.getElementById('pedidoNivel').value = 'Média';
-        document.getElementById('pedidoEspec').value = '';
+        this.pedidoItems.push({ id: Date.now(), nome, qtd, nivel, espec, desc });
+        nomeEl.value  = '';
+        if (qtdEl)   qtdEl.value   = '1';
+        if (nivelEl) nivelEl.value = 'Média';
+        if (especEl) especEl.value = '';
+        if (descEl)  descEl.value  = '';
         this.renderPedidoList();
     },
 
@@ -1146,6 +1167,7 @@ const Reports = {
                         <span class="pedido-item-qty">Qtd: ${item.qtd}</span>
                         <span class="pedido-item-nivel ${item.nivel}">${item.nivel}</span>
                         ${item.espec ? `<span class="pedido-item-espec" title="Especificações">${Inventory.escapeHtml(item.espec)}</span>` : ''}
+                        ${item.desc  ? `<span class="pedido-item-desc"  title="Descrição">${Inventory.escapeHtml(item.desc)}</span>` : ''}
                         <div class="pedido-item-actions" style="margin-left:auto">
                             <button class="btn btn-sm btn-secondary" onclick="Reports.editarItem(${item.id})">Editar</button>
                             <button class="btn btn-sm btn-danger" onclick="Reports.excluirItem(${item.id})">Excluir</button>
@@ -1158,6 +1180,7 @@ const Reports = {
                             ${['Baixa','Média','Alta','Urgente'].map(n => `<option value="${n}"${n===item.nivel?' selected':''}>${n}</option>`).join('')}
                         </select>
                         <input type="text" value="${Inventory.escapeHtml(item.espec||'')}" id="edit-espec-${item.id}" placeholder="Especificações" style="flex:1;min-width:120px">
+                        <input type="text" value="${Inventory.escapeHtml(item.desc||'')}"  id="edit-desc-${item.id}"  placeholder="Descrição" style="flex:1;min-width:120px">
                         <button class="btn btn-sm btn-primary" onclick="Reports.salvarEdicao(${item.id})">Salvar</button>
                         <button class="btn btn-sm btn-secondary" onclick="Reports.cancelarEdicao(${item.id})">Cancelar</button>
                     </div>
@@ -1184,8 +1207,9 @@ const Reports = {
         const qtd = parseInt(document.getElementById('edit-qtd-' + id).value) || 1;
         const nivel = document.getElementById('edit-nivel-' + id).value;
         const espec = document.getElementById('edit-espec-' + id).value.trim();
+        const desc  = document.getElementById('edit-desc-' + id) ? document.getElementById('edit-desc-' + id).value.trim() : (item.desc||'');
         if (!nome) { Toast.show('Nome não pode ser vazio!', 'error'); return; }
-        item.nome = nome; item.qtd = qtd; item.nivel = nivel; item.espec = espec;
+        item.nome = nome; item.qtd = qtd; item.nivel = nivel; item.espec = espec; item.desc = desc;
         this.renderPedidoList();
     },
 
@@ -1211,14 +1235,14 @@ const Reports = {
         return `
         <div style="margin-top:48px;padding-top:24px;">
             <div style="display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;">
-                <div style="flex:1;min-width:180px;text-align:center;">
+                <div style="flex:1;min-width:160px;text-align:center;">
                     <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Assinatura do Responsável</div>
                 </div>
-                <div style="flex:1;min-width:180px;text-align:center;">
-                    <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Assinatura de Recebido por</div>
+                <div style="flex:1;min-width:120px;text-align:center;">
+                    <div style="padding-top:8px;margin-top:40px;font-size:12px;color:#333;border:1px solid #ccc;border-radius:4px;padding:8px;">Data: ___/___/______</div>
                 </div>
-                <div style="flex:1;min-width:130px;text-align:center;">
-                    <div style="padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Data: ___/___/______</div>
+                <div style="flex:1;min-width:160px;text-align:center;">
+                    <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px;font-size:12px;color:#333;">Assinatura de Recebido por</div>
                 </div>
             </div>
         </div>`;
@@ -1340,6 +1364,7 @@ const Reports = {
                 <td style="padding:9px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;">${i+1}</td>
                 <td style="padding:9px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:600;">${Inventory.escapeHtml(item.nome)}</td>
                 <td style="padding:9px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#555;">${Inventory.escapeHtml(item.espec||'-')}</td>
+                <td style="padding:9px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#555;">${Inventory.escapeHtml(item.desc||'-')}</td>
                 <td style="padding:9px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;text-align:center;">${item.qtd}</td>
                 <td style="padding:9px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;text-align:center;"><span style="color:${cor};font-weight:700;">${item.nivel}</span></td>
             </tr>`;
@@ -1353,7 +1378,7 @@ const Reports = {
             <div style="text-align:right;"><span style="font-size:11px;color:#777;display:block;">Emitido em: ${today}</span>${emitidoPorPedido ? `<span style="font-size:11px;color:#777;display:block;">Emitido por: ${emitidoPorPedido}</span>` : ''}</div>
         </div>
         <table>
-            <thead><tr><th style="width:40px;">#</th><th>Nome do Produto</th><th>Especificações</th><th style="width:100px;text-align:center;">Quantidade</th><th style="width:130px;text-align:center;">Nível de Necessidade</th></tr></thead>
+            <thead><tr><th style="width:40px;">#</th><th>Nome do Produto</th><th>Especificações</th><th>Descrição</th><th style="width:80px;text-align:center;">Qtd</th><th style="width:110px;text-align:center;">Nível</th></tr></thead>
             <tbody>${tableRows}</tbody>
         </table>
         ${this._buildPdfFooter()}
@@ -1402,11 +1427,37 @@ const Navigation = {
         });
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') Modal.closeAll();
+            if (e.key === 'Escape') { Modal.closeAll(); this.closeSidebar(); }
         });
+
+        // Mobile sidebar
+        const menuBtn  = document.getElementById('mobileMenuBtn');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        if (menuBtn)  menuBtn.addEventListener('click', () => this.toggleSidebar());
+        if (backdrop) backdrop.addEventListener('click', () => this.closeSidebar());
+    },
+
+    toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar && sidebar.classList.contains('open') ? this.closeSidebar() : this.openSidebar();
+    },
+    openSidebar() {
+        const s = document.getElementById('sidebar');
+        const b = document.getElementById('sidebarBackdrop');
+        if (s) s.classList.add('open');
+        if (b) b.classList.add('visible');
+        document.body.style.overflow = 'hidden';
+    },
+    closeSidebar() {
+        const s = document.getElementById('sidebar');
+        const b = document.getElementById('sidebarBackdrop');
+        if (s) s.classList.remove('open');
+        if (b) b.classList.remove('visible');
+        if (!document.querySelector('.modal-overlay.visible')) document.body.style.overflow = '';
     },
 
     switchTab(tabId) {
+        this.closeSidebar();
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.toggle('active', item.dataset.tab === tabId);
         });
